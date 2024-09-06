@@ -1,0 +1,25 @@
+# Node.js
+node_modules/
+
+# Python
+# Virtual environment
+venv/
+.venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Python package distribution
+build/
+dist/
+*.egg-info/
+
+# macOS system files
+.DS_Store
