@@ -1,5 +1,7 @@
-const dotenv = require("dotenv");
-const path = require("path");
+// const dotenv = require("dotenv");
+// const path = require("path");
+import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -14,7 +16,7 @@ const { LINKEDIN_API_KEY } = process.env;
  * @param {* string it could be one of these: onSite, remote, hybrid} onsiteRemote
  * @param {* string (optional) it could be one of these: 0, 25, 50, 75, 100, etc. The maximum number of start is 975} start
  */
-const getAllJobs = async (getAllJobsObject) => {
+export const getAllJobs = async (getAllJobsObject) => {
   const { keywords, locationId, datePosted, sort, start } = getAllJobsObject;
   const parsedKeywords = keywords.split(" ").join("%20");
   const params = {
@@ -69,5 +71,3 @@ const getAllJobs = async (getAllJobsObject) => {
     console.error(error);
   }
 };
-
-module.exports = { getAllJobs };

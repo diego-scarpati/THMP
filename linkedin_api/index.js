@@ -1,5 +1,7 @@
-const { getAllJobs } = require("./getAllJobs");
-const { getJobDetails } = require("./getJobDetails");
+// const { getAllJobs } = require("./getAllJobs");
+// const { getJobDetails } = require("./getJobDetails");
+import { getAllJobs } from "./getAllJobs";
+import { getJobDetails } from "./getJobDetails";
 
 let keywords = "react native";
 let start = 0;

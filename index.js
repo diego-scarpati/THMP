@@ -1,5 +1,7 @@
-const { PythonShell } = require("python-shell");
-const path = require("path");
+// const { PythonShell } = require("python-shell");
+// const path = require("path");
+import { PythonShell } from "python-shell";
+import path from "path";
 
 let options = {
   mode: "text",
