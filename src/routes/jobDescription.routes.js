@@ -1,15 +1,19 @@
 import router from "express/lib/router";
+import * as jobDescriptionController from "../controllers/jobDescription.controller";
 
 const jobDescriptionRoutes = router();
 
-jobDescriptionRoutes.get("/getAll")
-jobDescriptionRoutes.get("/findById")
-// jobDescriptionRoutes.get("/getAllByAccepetance")
-// jobDescriptionRoutes.get("/getAllByCoverLetter")
-// jobDescriptionRoutes.get("/getAllApplied")
-// jobDescriptionRoutes.get("/getAllRejected")
-jobDescriptionRoutes.post("/create")
-// jobDescriptionRoutes.post("/bulkCreate")
-// jobDescriptionRoutes.patch("/update")
+jobDescriptionRoutes.get(
+  "/getAll",
+  jobDescriptionController.getAllJobDescriptions
+);
+jobDescriptionRoutes.get(
+  "/getById/:id",
+  jobDescriptionController.getJobDescriptionById
+);
+jobDescriptionRoutes.post(
+  "/create",
+  jobDescriptionController.createJobDescription
+);
 
 export default jobDescriptionRoutes;
