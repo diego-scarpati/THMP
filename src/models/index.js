@@ -11,3 +11,5 @@ Keyword.belongsToMany(Job, {through: 'JobKeyword', foreignKey: 'keywordId'})
 
 Job.hasOne(CoverLetter, {foreignKey: 'id'})
 CoverLetter.belongsTo(Job, {foreignKey: 'id'})
+
+export { Job, JobDescription, CoverLetter, Keyword };

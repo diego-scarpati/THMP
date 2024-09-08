@@ -6,6 +6,7 @@ const Job = db.define("Job", {
     type: DataTypes.INTEGER,
     allowNull: false,
     primaryKey: true,
+    unique: true,
   },
   title: {
     type: DataTypes.STRING,
