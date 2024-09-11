@@ -1,4 +1,4 @@
-import { CoverLetter, Job } from "../models";
+import { CoverLetter, Job, Keyword } from "../models";
 
 export const getAllJobs = async () => {
   try {
@@ -81,18 +81,32 @@ export const getAllRejected = async () => {
   }
 };
 
-export const createJob = async (job) => {
+export const createJob = async (job, keyword) => {
   try {
-    const newJob = await Job.create(...job);
+    const keywordInstance = await Keyword.findOne({
+      where: {
+        keyword
+      },
+    });
+    const [newJob, created] = await Job.findOrCreate({where: {id: job.id}, defaults: job});
+    await newJob.addKeyword(keywordInstance);
     return newJob;
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
   }
 };
 
-export const bulkCreateJobs = async (jobs) => {
+export const bulkCreateJobs = async (jobs, keyword) => {
   try {
+    const keywordInstance = await Keyword.findOne({
+      where: {
+        keyword
+      },
+    });
     const newJobs = await Job.bulkCreate(jobs, { ignoreDuplicates: true });
+    await newJobs.forEach(async (job) => {
+      await job.addKeyword(keywordInstance);
+    });
     return newJobs;
   } catch (error) {
     console.log("🚀 ~ bulkCreateJobs ~ error:", error);

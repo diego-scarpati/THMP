@@ -63,9 +63,9 @@ export const getAllRejected = async (req, res) => {
 };
 
 export const createJob = async (req, res) => {
-  const { jobInfo } = req.body;
+  const { jobInfo, keywords } = req.body;
   try {
-    const job = await jobService.createJob(jobInfo);
+    const job = await jobService.createJob(jobInfo, keywords);
     return res.status(201).json(job);
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
@@ -73,9 +73,9 @@ export const createJob = async (req, res) => {
 };
 
 export const bulkCreateJobs = async (req, res) => {
-  const { jobsInfoArray } = req.body;
+  const { jobsInfoArray, keywords } = req.body;
   try {
-    const jobs = await jobService.bulkCreateJobs(jobsInfoArray);
+    const jobs = await jobService.bulkCreateJobs(jobsInfoArray, keywords);
     return res.status(201).json(jobs);
   } catch (error) {
     console.log("🚀 ~ bulkCreateJobs ~ error:", error);
