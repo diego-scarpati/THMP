@@ -1,9 +1,11 @@
-// const dotenv = require("dotenv");
-// const path = require("path");
-import dotenv from "dotenv";
-import path from "path";
+// import dotenv from 'dotenv';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
 
 const { LINKEDIN_API_KEY } = process.env;
 
@@ -16,8 +18,8 @@ const { LINKEDIN_API_KEY } = process.env;
  * @param {* string it could be one of these: onSite, remote, hybrid} onsiteRemote
  * @param {* string (optional) it could be one of these: 0, 25, 50, 75, 100, etc. The maximum number of start is 975} start
  */
-export const getAllJobs = async (getAllJobsObject) => {
-  const { keywords, locationId, datePosted, sort, start } = getAllJobsObject;
+const getAllJobs = async (getAllJobsParamObject) => {
+  const { keywords, locationId, datePosted, sort, start } = getAllJobsParamObject;
   const parsedKeywords = keywords.split(" ").join("%20");
   const params = {
     keywords: parsedKeywords,
@@ -47,7 +49,7 @@ export const getAllJobs = async (getAllJobsObject) => {
       "x-rapidapi-host": "linkedin-api8.p.rapidapi.com",
     },
   };
-  // console.log(urlWithParams());
+
   try {
     const response = await fetch(urlWithParams(), options);
     const result = await response.text();
@@ -55,19 +57,21 @@ export const getAllJobs = async (getAllJobsObject) => {
       console.error("Error: ", result);
       return;
     }
-    console.log("type of result: ", typeof result);
+    // console.log("type of result: ", typeof result);
     
     // Transform the string into an object
     const resultObj = JSON.parse(result);
 
-    console.log("🚀 ~ getAllJobs ~ resultObj:", resultObj);
-    console.log(
-      "🚀 ~ getAllJobs ~ resultObj.data.length:",
-      resultObj.data.length
-    );
+    // console.log("🚀 ~ getAllJobs ~ resultObj:", resultObj);
+    // console.log(
+    //   "🚀 ~ getAllJobs ~ resultObj.data.length:",
+    //   resultObj.data.length
+    // );
 
     return resultObj;
   } catch (error) {
     console.error(error);
   }
 };
+
+module.exports = { getAllJobs };
