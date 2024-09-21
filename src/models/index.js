@@ -1,7 +1,7 @@
-import Job from "./Job";
-import JobDescription from "./JobDescription";
-import CoverLetter from "./CoverLetter";
-import Keyword from "./Keyword";
+import Job from "./Job.js";
+import JobDescription from "./JobDescription.js";
+import CoverLetter from "./CoverLetter.js";
+import Keyword from "./Keyword.js";
 
 Job.hasOne(JobDescription , {foreignKey: 'id'})
 JobDescription.belongsTo(Job, {foreignKey: 'id'})

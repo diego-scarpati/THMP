@@ -1,4 +1,4 @@
-import { JobDescription } from "../models";
+import { JobDescription } from "../models/index.js";
 
 export const getAllJobDescriptions = async () => {
   try {

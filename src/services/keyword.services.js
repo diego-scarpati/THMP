@@ -1,4 +1,4 @@
-import { Keyword } from "../models";
+import { Keyword } from "../models/index.js";
 
 export const getAllKeywords = async () => {
   try {

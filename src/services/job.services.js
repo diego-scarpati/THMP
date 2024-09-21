@@ -1,4 +1,4 @@
-import { CoverLetter, Job, Keyword } from "../models";
+import { CoverLetter, Job, Keyword } from "../models/index.js";
 
 export const getAllJobs = async () => {
   try {

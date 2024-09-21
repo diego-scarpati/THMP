@@ -1,22 +1,31 @@
-// const { PythonShell } = require("python-shell");
-// const path = require("path");
-import { PythonShell } from "python-shell";
-import path from "path";
+import express from "express";
+import morgan from "morgan";
+import router from "./routes/index.routes.js";
+import cors from "cors";
+import db from "./db/connection.cjs";
 
-let options = {
-  mode: "text",
-  pythonOptions: ["-u"],
-  scriptPath: path.join(__dirname, "open_ai"),
-  args: ["cats and dogs", 1],
+const app = express();
+const port = 8888;
+const corsOptions = {
+  origin: "*",
+  credentials: true,
 };
 
-PythonShell.run("test.py", options, (err, results) => {
-  if (err) throw err;
-  return results;
-})
-  .then((results) => {
-    console.log(results);
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+app.use(morgan("dev"));
+
+app.use(express.json());
+
+app.use(cors(corsOptions));
+
+app.use("/api", router);
+
+(async () => {
+  try {
+    await db.sync({ force: false });
+    app.listen(port, () => {
+      console.log(`Listening on Port: ${port}`);
+    });
+  } catch (error) {
+    console.error("Unable to connect:", error.message);
+  }
+})();

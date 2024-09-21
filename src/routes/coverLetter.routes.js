@@ -1,7 +1,7 @@
-import router from "express/lib/router";
-import * as coverLetterController from "../controllers/coverLetter.controller";
+import express from "express";
+import * as coverLetterController from "../controllers/coverLetter.controller.js";
 
-const coverLetterRoutes = router();
+const coverLetterRoutes = express.Router();
 
 coverLetterRoutes.get("/getAll", coverLetterController.getAllCoverLetters);
 coverLetterRoutes.get("/getById/:id", coverLetterController.getCoverLetterById);

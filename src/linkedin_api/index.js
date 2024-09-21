@@ -10,7 +10,7 @@ const options = {
 };
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
-const fetchAllJobs = async (options) => {
+export const fetchAllJobs = async (options) => {
   let accumulatedData = []; // Store all data here
   let page = 1; // Start from page 1
   const pageSize = 25; // Define the page size (maximum length of data array)
@@ -46,9 +46,7 @@ const fetchAllJobs = async (options) => {
   }
 };
 
-fetchAllJobs(options);
-
-const filterJobs = async (options) => {
+export const filterJobs = async (options) => {
   const jobs = await fetchAllJobs(options);
   // Filter out all jobs that have senior OR lead in the title and return the ones that don't
   const filteredJobs = jobs.data.filter((job) => {
@@ -65,7 +63,7 @@ const filterJobs = async (options) => {
 
 // filterJobs(options);
 
-const fetchJobDetails = async (jobId) => {
+export const fetchJobDetails = async (jobId) => {
   const result = await getJobDetails(jobId);
   console.log("🚀 ~ fetchJobDetails ~ result:", result);
   return result;

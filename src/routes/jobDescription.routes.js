@@ -1,7 +1,7 @@
-import router from "express/lib/router";
-import * as jobDescriptionController from "../controllers/jobDescription.controller";
+import express from 'express';
+import * as jobDescriptionController from "../controllers/jobDescription.controller.js";
 
-const jobDescriptionRoutes = router();
+const jobDescriptionRoutes = express.Router();
 
 jobDescriptionRoutes.get(
   "/getAll",

@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
-import db from "../db/connection";
+import db from "../db/connection.cjs";
 
 const CoverLetter = db.define("CoverLetter", {
   id: {
