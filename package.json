@@ -11,6 +11,13 @@
   "lint-staged": {
     "*": "prettier --ignore-unknown --write"
   },
+  "eslintConfig": {
+    "extends": ["prettier"],
+    "plugins": ["prettier"],
+    "rules": {
+      "prettier/prettier": "error"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
