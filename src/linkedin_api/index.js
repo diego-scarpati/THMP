@@ -3,18 +3,12 @@
 import { getAllJobs } from "./getAllJobs.cjs";
 import { getJobDetails } from "./getJobDetails.cjs";
 
-let keywords = "react native";
-
-const options = {
-  keywords,
-};
-
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
   let accumulatedData = []; // Store all data here
   let page = 1; // Start from page 1
   const pageSize = 25; // Define the page size (maximum length of data array)
-  let stop = 0
+  let stop = 0;
   let total = 0; // Will hold the total number of items returned
 
   try {
@@ -33,12 +27,19 @@ export const fetchAllJobs = async (options) => {
       // Set the total on the first API call
       if (page === 1) {
         total = result.total;
-        stop = Math.floor(total / pageSize) + 1
+        stop = Math.floor(total / pageSize) + 1;
       }
 
       // Increment the page for the next request
       page++;
     } while (page <= stop);
+    // Filtering accumulatedData to remove duplicates by id
+    const seen = new Set();
+    accumulatedData = accumulatedData.filter((job) => {
+      const duplicate = seen.has(job.id);
+      seen.add(job.id);
+      return !duplicate;
+    });
     return { data: accumulatedData, total };
   } catch (error) {
     console.log("🚀 ~ fetchAllJobs ~ error:", error);
