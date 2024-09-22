@@ -82,7 +82,7 @@ export const searchAndCreateJobs = async (req, res) => {
     //   const createdJob = await jobService.createJob(job, keywords);
     //   jobsCreated++
     // })
-    // return res.status(201).send(`Created ${jobsCreated} jobs out of ${jobs.total}`);
+    return res.status(201).send(`Created ${jobsCreated} jobs out of ${jobs.total}`);
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
   }
