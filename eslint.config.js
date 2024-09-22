@@ -1,23 +1,21 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint, { plugin } from "typescript-eslint";
-// import { rules } from "@eslint/js/src/configs/eslint-all";
-import eslintPluginPrettier from "eslint-plugin-prettier";
+// eslint.config.js
+const eslintRecommended = require('eslint/use-at-your-own-risk').builtinRules;
+const prettierConfig = require('eslint-plugin-prettier').configs.recommended;
 
-export default [
+module.exports = [
   {
-    files: ["**/*.{js,mjs,cjs,ts}"],
+    files: ['**/*.js'],  // Lint all JavaScript files
     languageOptions: {
       ecmaVersion: 2021,  // ECMAScript version
       sourceType: 'module'
     },
     plugins: {
-      prettier: eslintPluginPrettier
+      prettier: require('eslint-plugin-prettier')
     },
     rules: {
-      // ...tseslint.configs.recommended,
-      // ...eslintPluginPrettier.rules.recommended,        // Spread Prettier recommended rules
+      ...eslintRecommended,           // Spread ESLint recommended rules
+      ...prettierConfig.rules,        // Spread Prettier recommended rules
       'prettier/prettier': 'error'    // Show Prettier issues as ESLint errors
-    },
-  },
+    }
+  }
 ];
