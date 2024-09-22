@@ -103,13 +103,13 @@ export const createJob = async (job, keyword) => {
       },
     });
     const [newJob, created] = await Job.findOrCreate({where: {id: job.id}, defaults: {
-      id: job.id,
+      id: Number(job.id),
       title: job.title,
       url: job.url,
       referenceId: job.referenceId || null,
       posterId: job.posterId || null,
       company: job.company.name,
-      location: job.location,
+      location: job.location || null,
       type: job.type || null,
       postDate: job.postAt || null,
       benefits: job.benefits || null,

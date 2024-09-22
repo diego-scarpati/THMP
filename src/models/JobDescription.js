@@ -3,7 +3,7 @@ import db from "../db/connection.cjs";
 
 const JobDescription = db.define("JobDescription", {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
     primaryKey: true,
   },
