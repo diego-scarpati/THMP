@@ -9,7 +9,7 @@ jobRoutes.get("/getAllByAccepetance", jobController.getAllByAccepetance);
 jobRoutes.get("/getAllByCoverLetter", jobController.getAllByCoverLetter);
 jobRoutes.get("/getAllApplied", jobController.getAllApplied);
 jobRoutes.get("/getAllRejected", jobController.getAllRejected);
-jobRoutes.post("/create", jobController.createJob);
+jobRoutes.post("/searchAndCreate", jobController.searchAndCreateJobs);
 // jobRoutes.post("/bulkCreate", jobController.bulkCreate);
 jobRoutes.patch("/update/:id", jobController.updateJob);
 

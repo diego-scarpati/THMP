@@ -82,13 +82,38 @@ export const getAllRejected = async () => {
 };
 
 export const createJob = async (job, keyword) => {
+  // job
+  // {
+  //   id: '3971859528',
+  //   title: '解释器开发工程师｜Interpreter  Developer',
+  //   url: 'https://www.linkedin.com/jobs/view/3971859528',
+  //   referenceId: 'hPiXoh2iD/eB5e1k5Fi3JQ==',
+  //   posterId: '947263984',
+  //   company: {
+  //     name: 'Gate.io',
+  //     logo: 'https://media.licdn.com/dms/image/v2/D560BAQG88tXsEE6cvQ/company-logo_200_200/company-logo_200_200/0/1724666407172/gateio_logo?e=1735171200&v=beta&t=2-JxU4zK7K9Rftl9W66m3O5kSYOaJGBadeq50uludKM',
+  //     url: 'https://www.linkedin.com/company/gateio/life',
+  //     staffCountRange: {},
+  //     headquarter: {}
+  //   }
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
         keyword
       },
     });
-    const [newJob, created] = await Job.findOrCreate({where: {id: job.id}, defaults: job});
+    const [newJob, created] = await Job.findOrCreate({where: {id: job.id}, defaults: {
+      id: job.id,
+      title: job.title,
+      url: job.url,
+      referenceId: job.referenceId || null,
+      posterId: job.posterId || null,
+      company: job.company.name,
+      location: job.location,
+      type: job.type || null,
+      postDate: job.postAt || null,
+      benefits: job.benefits || null,
+    }});
     await newJob.addKeyword(keywordInstance);
     return newJob;
   } catch (error) {

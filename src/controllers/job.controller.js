@@ -1,4 +1,5 @@
 import * as jobService from "../services/job.services.js";
+import * as linkedInApi from "../linkedin_api/index.js"
 
 export const getAllJobs = async (req, res) => {
   try {
@@ -62,11 +63,26 @@ export const getAllRejected = async (req, res) => {
   }
 };
 
-export const createJob = async (req, res) => {
-  const { jobInfo, keywords } = req.body;
+export const searchAndCreateJobs = async (req, res) => {
+  // const { jobInfo, keywords } = req.body;
+  const { keywords, locationId, datePosted, sort } = req.query;
   try {
-    const job = await jobService.createJob(jobInfo, keywords);
-    return res.status(201).json(job);
+    const jobs = await linkedInApi.filterJobs({
+      keywords,
+      locationId,
+      datePosted,
+      sort
+    });
+    if (jobs.length === 0 || !jobs) {
+      console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No jobs found")
+      return res.status(404).send("No jobs found");
+    }
+    let jobsCreated = 0
+    // jobs.data.forEach(async (job) => {
+    //   const createdJob = await jobService.createJob(job, keywords);
+    //   jobsCreated++
+    // })
+    // return res.status(201).send(`Created ${jobsCreated} jobs out of ${jobs.total}`);
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
   }
