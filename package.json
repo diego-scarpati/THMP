@@ -8,13 +8,6 @@
     "start": "nodemon src/index.js",
     "prepare": "husky install"
   },
-  "lint-staged": {
-    "*": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
-  },
   "eslintConfig": {
     "extends": [
       "prettier"
