@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import * as jobDescriptionController from "../controllers/jobDescription.controller.js";
 
 const jobDescriptionRoutes = express.Router();
@@ -14,6 +14,10 @@ jobDescriptionRoutes.get(
 jobDescriptionRoutes.post(
   "/create",
   jobDescriptionController.createJobDescription
+);
+jobDescriptionRoutes.post(
+  "/loopAndCreate",
+  jobDescriptionController.loopAndCreateJobDescription
 );
 
 export default jobDescriptionRoutes;

@@ -44,6 +44,16 @@ const Job = db.define("Job", {
     type: DataTypes.STRING,
     // allowNull: false,
   },
+  approvedByFormula: {
+    type: DataTypes.ENUM,
+    values: ["yes", "no", "pending"],
+    defaultValue: "pending",
+  },
+  approvedByGPT: {
+    type: DataTypes.ENUM,
+    values: ["yes", "no", "pending"],
+    defaultValue: "pending",
+  },
 });
 
 export default Job;
