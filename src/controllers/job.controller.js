@@ -2,8 +2,9 @@ import * as jobService from "../services/job.services.js";
 import * as linkedInApi from "../linkedin_api/index.js";
 
 export const getAllJobs = async (req, res) => {
+  const options = req.query;
   try {
-    const jobs = await jobService.getAllJobs();
+    const jobs = await jobService.getAllJobs(options);
     return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);

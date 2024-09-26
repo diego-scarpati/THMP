@@ -1,4 +1,7 @@
+import { fetchJobDetails } from "../linkedin_api/index.js";
 import { JobDescription } from "../models/index.js";
+import * as jobServices from "../services/job.services.js";
+import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 
 export const getAllJobDescriptions = async () => {
   try {
@@ -22,6 +25,52 @@ export const createJobDescription = async (jobDescription) => {
   try {
     const newJobDescription = await JobDescription.create(...jobDescription);
     return newJobDescription;
+  } catch (error) {
+    console.log("🚀 ~ createJobDescription ~ error:", error);
+  }
+};
+
+export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
+  try {
+    let jobDescriptionsCreated = 0;
+    for (const job of jobsToCreateDescriptions) {
+      // const jobDescription = await fetchJobDetails(Number(job.jobId));
+      const jobDescription = await fetchJobDetails(job.id);
+      if (!jobDescription) {
+        console.log(
+          "🚀 ~ loopAndCreateJobDescription ~ jobDescription:",
+          jobDescription
+        );
+        continue;
+      } else {
+        const [jobDescriptionCreated, created] =
+          await JobDescription.findOrCreate({
+            where: { id: job.id },
+            defaults: {
+              id: job.id,
+              state: jobDescription.state,
+              description: jobDescription.description,
+              companyApplyUrl:
+                jobDescription.applyMethod.companyApplyUrl || null,
+              easyApplyUrl: jobDescription.applyMethod.easyApplyUrl || null,
+              workRemoteAllowed: jobDescription.workRemoteAllowed || null,
+              workPlace: jobDescription.workPlace || null,
+              formattedExperienceLevel:
+                jobDescription.formattedExperienceLevel || null,
+              skills: jobDescription.skills.join(", ") || null,
+            },
+          });
+        if (created) {
+          jobDescriptionsCreated++;
+          const approved = await acceptByFormula(jobDescription);
+          console.log("🚀 ~ loopAndCreateJobDescription ~ approved:", approved);
+          await jobServices.updateJob(job.id, {
+            approvedByFormula: approved ? "yes" : "no",
+          });
+        }
+      }
+    }
+    return `Job descriptions created: ${jobDescriptionsCreated} out of ${jobsToCreateDescriptions.length}`;
   } catch (error) {
     console.log("🚀 ~ createJobDescription ~ error:", error);
   }

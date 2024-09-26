@@ -3,7 +3,6 @@ const path = require("path");
 // import dotenv from "dotenv";
 // import path from "path";
 
-
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const { LINKEDIN_API_KEY } = process.env;
@@ -25,11 +24,11 @@ const getJobDetails = async (jobId) => {
       console.error("Error: ", result);
       return;
     }
-    console.log("type of result: ", typeof result);
+    // console.log("type of result: ", typeof result);
 
     // Transform the string into an object
     const resultObj = JSON.parse(result);
-    console.log("🚀 ~ getJobDetails ~ resultObj:", resultObj);
+    // console.log("🚀 ~ getJobDetails ~ resultObj:", resultObj);
 
     return resultObj;
   } catch (error) {

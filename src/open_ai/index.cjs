@@ -1,12 +1,13 @@
-// const { PythonShell } = require("python-shell");
-// const path = require("path");
-import { PythonShell } from "python-shell";
-import path from "path";
+const { PythonShell } = require("python-shell");
+const path = require("path");
+// import { PythonShell } from "python-shell";
+// import path from "path";
 
 let options = {
   mode: "text",
   pythonOptions: ["-u"],
-  scriptPath: path.join(__dirname, "open_ai"),
+  scriptPath: path.join(__dirname),
+  // scriptPath: path.join(__dirname, "open_ai"),
   args: ["cats and dogs", 1],
 };
 

@@ -23,7 +23,20 @@ const JobDescription = db.define("JobDescription", {
     type: DataTypes.STRING,
     // allowNull: false,
   },
+  workRemoteAllowed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    // allowNull: false,
+  },
   workPlace: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
+  formattedExperienceLevel: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
+  skills: {
     type: DataTypes.STRING,
     // allowNull: false,
   },

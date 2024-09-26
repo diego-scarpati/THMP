@@ -1,8 +1,12 @@
 import { CoverLetter, Job, Keyword } from "../models/index.js";
 
-export const getAllJobs = async () => {
+export const getAllJobs = async (options) => {
   try {
-    const jobs = await Job.findAll();
+    const jobs = await Job.findAll({
+      where: {
+        ...options,
+      },
+    });
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -99,21 +103,24 @@ export const createJob = async (job, keyword) => {
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
-        keyword
+        keyword,
       },
     });
-    const [newJob, created] = await Job.findOrCreate({where: {id: job.id}, defaults: {
-      id: Number(job.id),
-      title: job.title,
-      url: job.url,
-      referenceId: job.referenceId || null,
-      posterId: job.posterId || null,
-      company: job.company.name,
-      location: job.location || null,
-      type: job.type || null,
-      postDate: job.postAt || null,
-      benefits: job.benefits || null,
-    }});
+    const [newJob, created] = await Job.findOrCreate({
+      where: { id: job.id },
+      defaults: {
+        id: Number(job.id),
+        title: job.title,
+        url: job.url,
+        referenceId: job.referenceId || null,
+        posterId: job.posterId || null,
+        company: job.company.name,
+        location: job.location || null,
+        type: job.type || null,
+        postDate: job.postAt || null,
+        benefits: job.benefits || null,
+      },
+    });
     await newJob.addKeyword(keywordInstance);
     return newJob;
   } catch (error) {
@@ -125,7 +132,7 @@ export const bulkCreateJobs = async (jobs, keyword) => {
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
-        keyword
+        keyword,
       },
     });
     const newJobs = await Job.bulkCreate(jobs, { ignoreDuplicates: true });
@@ -150,3 +157,13 @@ export const updateJob = async (id, jobInfo) => {
     console.log("🚀 ~ updateJob ~ error:", error);
   }
 };
+
+// export const checkJobDescription = async (newJobDescription) => {
+//   try {
+//     const approved = await acceptByFormula(newJobDescription)
+//     console.log("🚀 ~ checkJobDescription ~ approved:", approved)
+//     return approved
+//   } catch (error) {
+//     console.log("🚀 ~ createJobDescription ~ error:", error);
+//   }
+// }

@@ -2,6 +2,7 @@
 // const { getJobDetails } = require("./getJobDetails");
 import { getAllJobs } from "./getAllJobs.cjs";
 import { getJobDetails } from "./getJobDetails.cjs";
+import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
@@ -78,9 +79,20 @@ export const filterJobs = async (options) => {
 // filterJobs(options);
 
 export const fetchJobDetails = async (jobId) => {
+  let id = jobId;
+  // console.log("🚀 ~ fetchJobDetails ~ id:", id)
+  if (typeof jobId !== "number") {
+    // console.log("🚀 ~ fetchJobDetails ~ jobId:", jobId);
+    id = parseInt(jobId);
+    // console.log("🚀 ~ fetchJobDetails ~ typoeof jobId:", typeof jobId);
+  }
   const result = await getJobDetails(jobId);
-  console.log("🚀 ~ fetchJobDetails ~ result:", result);
-  return result;
+  // console.log("🚀 ~ fetchJobDetails ~ result:", result);
+  if (!result.success) {
+    console.log("🚀 ~ fetchJobDetails ~ result.message:", result.message);
+    return null;
+  }
+  return result.data;
 };
 
 // fetchJobDetails(3994478124);
