@@ -1,12 +1,35 @@
-import { CoverLetter, Job, Keyword } from "../models/index.js";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
+import { acceptByFormula, gptApproval } from "../utils/pythonFunctions.cjs";
 
-export const getAllJobs = async (options) => {
+export const getAllJobs = async (whereClause) => {
   try {
     const jobs = await Job.findAll({
       where: {
-        ...options,
+        ...whereClause,
       },
     });
+    return jobs;
+  } catch (error) {
+    console.log("🚀 ~ getAllJobs ~ error:", error);
+  }
+};
+
+export const getAllJobsWithDescription = async () => {
+  try {
+    const jobs = await Job.findAll({
+      where: {
+        approvedByGPT: "pending",
+        easyApply: "yes",
+        approvedByFormula: "yes",
+      },
+      include: {
+        model: JobDescription,
+        attributes: ["description"],
+      },
+      raw: true,
+      nest: false,
+    });
+    console.log("🚀 ~ getAllJobsWithDescription ~ jobs:", jobs);
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -47,11 +70,6 @@ export const getAllByCoverLetter = async () => {
           },
         },
       },
-      // where: {
-      //   coverLetter: {
-      //     [Op.not]: null,
-      //   },
-      // },
     });
     return jobs;
   } catch (error) {
@@ -86,20 +104,6 @@ export const getAllRejected = async () => {
 };
 
 export const createJob = async (job, keyword) => {
-  // job
-  // {
-  //   id: '3971859528',
-  //   title: '解释器开发工程师｜Interpreter  Developer',
-  //   url: 'https://www.linkedin.com/jobs/view/3971859528',
-  //   referenceId: 'hPiXoh2iD/eB5e1k5Fi3JQ==',
-  //   posterId: '947263984',
-  //   company: {
-  //     name: 'Gate.io',
-  //     logo: 'https://media.licdn.com/dms/image/v2/D560BAQG88tXsEE6cvQ/company-logo_200_200/company-logo_200_200/0/1724666407172/gateio_logo?e=1735171200&v=beta&t=2-JxU4zK7K9Rftl9W66m3O5kSYOaJGBadeq50uludKM',
-  //     url: 'https://www.linkedin.com/company/gateio/life',
-  //     staffCountRange: {},
-  //     headquarter: {}
-  //   }
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
@@ -156,6 +160,32 @@ export const updateJob = async (id, jobInfo) => {
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
   }
+};
+
+export const approveByGPT = async (jobs) => {
+  let jobsApproved = 0;
+  for (const job of jobs) {
+    console.log("🚀 ~ approveByGPT ~ job:", job.id);
+    const approved = await gptApproval(job);
+    console.log("🚀 ~ approveByGPT ~ approved:", approved);
+    console.log("🚀 ~ approveByGPT ~ approved:", approved ? "yes" : "no");
+    try {
+      const approveJob = await Job.update(
+        { approvedByGPT: approved ? "yes" : "no" },
+        {
+          where: {
+            id: job.id,
+          },
+        }
+      );
+      console.log("🚀 ~ approveByGPT ~ approveJob:", approveJob);
+      return approveJob;
+    } catch (error) {
+      console.log("🚀 ~ updateJob ~ error:", error);
+    }
+    jobsApproved++;
+  }
+  return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
 
 // export const checkJobDescription = async (newJobDescription) => {

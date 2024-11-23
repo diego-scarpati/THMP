@@ -38,11 +38,15 @@ export const loopAndCreateJobDescription = async (req, res) => {
     const jobsToCreateDescriptions = await jobServices.getAllJobs({
       approvedByFormula: "pending",
     });
-    const newJobDescription =
+    console.log(
+      "🚀 ~ loopAndCreateJobDescription ~ jobsToCreateDescriptions:",
+      jobsToCreateDescriptions
+    );
+    const newJobDescriptions =
       await jobDescriptionServices.loopAndCreateJobDescription(
         jobsToCreateDescriptions
       );
-    return res.status(201).json(newJobDescription);
+    return res.status(201).send(newJobDescriptions);
   } catch (error) {
     console.log("🚀 ~ createJobDescription ~ error:", error);
   }

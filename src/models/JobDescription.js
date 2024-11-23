@@ -16,11 +16,11 @@ const JobDescription = db.define("JobDescription", {
     allowNull: false,
   },
   companyApplyUrl: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     // allowNull: false,
   },
   easyApplyUrl: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     // allowNull: false,
   },
   workRemoteAllowed: {

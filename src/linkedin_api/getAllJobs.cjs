@@ -1,11 +1,10 @@
 // import dotenv from 'dotenv';
 // import path from 'path';
 // import { fileURLToPath } from 'url';
-const dotenv = require('dotenv');
-const path = require('path');
+const dotenv = require("dotenv");
+const path = require("path");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
 
 const { LINKEDIN_API_KEY } = process.env;
 
@@ -17,19 +16,23 @@ const { LINKEDIN_API_KEY } = process.env;
  * @param {* string mostRelevant or mostRecent} sort
  * @param {* string it could be one of these: onSite, remote, hybrid} onsiteRemote
  * @param {* string (optional) it could be one of these: 0, 25, 50, 75, 100, etc. The maximum number of start is 975} start
+ * @param {* string (optional) it could be one of these: internship, associate, director, entryLevel, midSeniorLevel.} experienceLevel
  */
 const getAllJobs = async (getAllJobsParamObject) => {
-  const { keywords, locationId, datePosted, sort, start } = getAllJobsParamObject;
+  const { keywords, locationId, datePosted, sort, start, experienceLevel } =
+    getAllJobsParamObject;
   const parsedKeywords = keywords.split(" ").join("%20");
   const params = {
     keywords: parsedKeywords,
-    locationId: locationId ? locationId : 104769905,
+    locationId: locationId ? locationId : 104769905, // Sydney, Australia
     datePosted: datePosted ? datePosted : "anyTime",
     sort: sort ? sort : "mostRecent",
     start: start ? start : 0,
+    experienceLevel: experienceLevel ? experienceLevel : undefined,
   };
 
-  let url = "https://linkedin-api8.p.rapidapi.com/search-jobs";
+  // let url = "https://linkedin-api8.p.rapidapi.com/search-jobs";
+  let url = "https://rapid-linkedin-jobs-api.p.rapidapi.com/search-jobs-v2";
 
   const urlWithParams = () => {
     let urlWithParams = url;
@@ -58,7 +61,7 @@ const getAllJobs = async (getAllJobsParamObject) => {
       return;
     }
     // console.log("type of result: ", typeof result);
-    
+
     // Transform the string into an object
     const resultObj = JSON.parse(result);
 

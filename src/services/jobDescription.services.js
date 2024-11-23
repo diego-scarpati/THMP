@@ -41,7 +41,6 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
           "🚀 ~ loopAndCreateJobDescription ~ jobDescription:",
           jobDescription
         );
-        continue;
       } else {
         const [jobDescriptionCreated, created] =
           await JobDescription.findOrCreate({
@@ -57,15 +56,28 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
               workPlace: jobDescription.workPlace || null,
               formattedExperienceLevel:
                 jobDescription.formattedExperienceLevel || null,
-              skills: jobDescription.skills.join(", ") || null,
+              skills: jobDescription.skills
+                ? jobDescription.skills.join(", ")
+                : null,
             },
           });
+        console.log(
+          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated:",
+          jobDescriptionCreated
+        );
+        console.log(
+          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated.dataValues:",
+          jobDescriptionCreated.dataValues
+        );
         if (created) {
           jobDescriptionsCreated++;
           const approved = await acceptByFormula(jobDescription);
           console.log("🚀 ~ loopAndCreateJobDescription ~ approved:", approved);
           await jobServices.updateJob(job.id, {
             approvedByFormula: approved ? "yes" : "no",
+            easyApply: jobDescriptionCreated.dataValues.easyApplyUrl
+              ? "yes"
+              : "no",
           });
         }
       }

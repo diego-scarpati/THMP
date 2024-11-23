@@ -54,6 +54,11 @@ const Job = db.define("Job", {
     values: ["yes", "no", "pending"],
     defaultValue: "pending",
   },
+  easyApply: {
+    type: DataTypes.ENUM,
+    values: ["yes", "no", "pending"],
+    defaultValue: "pending",
+  },
 });
 
 export default Job;

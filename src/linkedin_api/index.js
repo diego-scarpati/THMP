@@ -2,13 +2,13 @@
 // const { getJobDetails } = require("./getJobDetails");
 import { getAllJobs } from "./getAllJobs.cjs";
 import { getJobDetails } from "./getJobDetails.cjs";
-import { acceptByFormula } from "../utils/pythonFunctions.cjs";
+// import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
   let accumulatedData = []; // Store all data here
   let page = 1; // Start from page 1
-  const pageSize = 25; // Define the page size (maximum length of data array)
+  const pageSize = 50; // Define the page size (maximum length of data array)
   let stop = 0;
   let total = 0; // Will hold the total number of items returned
   try {
@@ -65,10 +65,22 @@ export const filterJobs = async (options) => {
   }
   // Filter out all jobs that have senior OR lead in the title and return the ones that don't
   const filteredJobs = jobs.accumulatedData.filter((job) => {
-    const title = job.title.toLowerCase();
+    const title = job.title.toLowerCase().split(" ");
     return (
       !title.includes("senior") &&
       !title.includes("lead") &&
+      !title.includes("principal") &&
+      !title.includes("director") &&
+      !title.includes("manager") &&
+      !title.includes("intern") &&
+      !title.includes("internship") &&
+      !title.includes("lavarel") &&
+      !title.includes("architect") &&
+      !title.includes("php") &&
+      !title.includes("power apps") &&
+      !title.includes("golang") &&
+      !title.includes(".net") &&
+      !title.includes("rust") &&
       !title.includes("salesforce")
     );
   });
