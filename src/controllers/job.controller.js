@@ -30,27 +30,10 @@ export const getAllJobs = async (req, res) => {
 };
 
 export const getAllJobsWithDescription = async (req, res) => {
-  // const options = { ...req.query };
-
-  // const whereClause = {};
-  // const validValues = ["yes", "no", "pending"];
-
-  // // Loop through each query parameter
-  // for (const [key, value] of Object.entries(options)) {
-  //   // Check if the parameter is approvedByFormula and validate it
-  //   if (key === "approvedByFormula" || key === "approvedByGPT") {
-  //     if (validValues.includes(value)) {
-  //       whereClause[key] = value; // Only add if valid
-  //     }
-  //   } else if (value !== undefined) {
-  //     // For other parameters, add them as-is if they are defined
-  //     whereClause[key] = value;
-  //   }
-  // }
-
   try {
     const jobs = await jobService.getAllJobsWithDescription();
     return jobs;
+    // return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
   }
@@ -62,6 +45,10 @@ export const saveJobsToFile = async (req, res) => {
     const jobs = await jobService.getAllJobs(options);
     // python function to save to file
     const saveToFilePath = await saveToFile(jobs);
+    console.log("🚀 ~ saveJobsToFile ~ saveToFilePath:", saveToFilePath);
+    if (saveToFilePath) {
+      return res.status(200).json({ message: "File saved successfully" });
+    }
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
   }

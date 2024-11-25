@@ -11,6 +11,7 @@ def save_to_excel(jobs_to_save):
     df_jobs.to_excel(file_path, index=False)
     
     print(f"Excel file saved to: {file_path}")
+    return f'{file_path}'
 
 if __name__ == "__main__":
     # This is crucial for receiving arguments from PythonShell

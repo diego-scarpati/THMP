@@ -38,10 +38,6 @@ export const loopAndCreateJobDescription = async (req, res) => {
     const jobsToCreateDescriptions = await jobServices.getAllJobs({
       approvedByFormula: "pending",
     });
-    console.log(
-      "🚀 ~ loopAndCreateJobDescription ~ jobsToCreateDescriptions:",
-      jobsToCreateDescriptions
-    );
     const newJobDescriptions =
       await jobDescriptionServices.loopAndCreateJobDescription(
         jobsToCreateDescriptions

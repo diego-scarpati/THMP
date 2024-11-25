@@ -23,3 +23,6 @@ dist/
 
 # macOS system files
 .DS_Store
+
+# every excel file
+*.xlsx

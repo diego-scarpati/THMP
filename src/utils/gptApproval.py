@@ -11,27 +11,88 @@ os.environ["OPENAI_API_KEY"] = openai_key
 client = OpenAI()
 
 def chat_completion_approval(job, resume, temperature=1):
-  # print(f"Chat completion \n Job Description: \n {job} \n Resume: \n {resume} \n with temperature {temperature}")
-  completion = client.chat.completions.create(
-    model="gpt-3.5-turbo-0125",
-    messages=[
-        {"role": "system", "content": 
-          """
-            You are a collaborative Human Resources Specialist with extensive experience. Your goal is to determine if a certain job should be discarded or not regarding its description. 
+  """
+    Determines if a resume is suitable for a job based on the job description.
+    
+    Parameters:
+        job (str): The job description.
+        resume (str): The candidate's resume.
+        temperature (float): Sampling temperature.
+    
+    Returns:
+        str: "true" if suitable, "false" otherwise.
+    """
+  prompt = """
+    You are a highly skilled Human Resources Specialist with extensive experience in recruitment and candidate evaluation. Your task is to assess whether a given resume is suitable for a specified job description.
 
-            - You should analyze the job description and the provided resume to decide if the candidate is suitable for the position.
-            - The job description may contain specific requirements, responsibilities, and qualifications that you should consider. 
-            - The job description may have some desired skills, experiences, or years of experience that you should evaluate. Desired skills should not be considered as mandatory.
-            - The resume includes the candidate's qualifications, experiences, and skills that you should evaluate.
-            - The output of your analysis should ONLY be a "true" if the candidate is suitable for the job, or "false" if the candidate is not suitable.
-          """
-        },
-        {"role": "user", "content": f'Decide to rather accept (return true) or discard the job (return false) the job regarding its information and my resume. \nJob: {job} \n Resume: {resume}'}
-    ],
-    temperature=temperature
+    Guidelines:
+    1. Analyze the job description and the provided resume thoroughly.
+    2. Determine if the candidate meets all **mandatory** requirements outlined in the job description.
+    3. Consider the candidate's visa status and ensure it aligns with the job's citizenship or Permanent Residency (PR) requirements.
+    4. **Desired** skills and experiences in the job description are not mandatory but can be considered to strengthen the evaluation.
+    5. Ignore any irrelevant information that does not pertain to the job requirements.
+
+    **Output**:
+    - Respond with only "true" if the candidate is suitable for the job.
+    - Respond with only "false" if the candidate is not suitable.
+    - Do not provide any additional commentary or explanation.
+    """
+
+  user_message = f"""
+    Job Description:
+    {job}
+
+    Resume:
+    {resume}
+    """
+  # try:
+    # response = openai.ChatCompletion.create(
+  response = client.chat.completions.create(
+      model="gpt-4",
+      messages=[
+          {"role": "system", "content": prompt},
+          {"role": "user", "content": user_message}
+      ],
+      temperature=temperature,
+      max_tokens=10,  # Limit tokens to enforce concise response
+      n=1,
+      stop=None
   )
-  print("Chat completion: \n", completion.choices[0].message.content)
-  return completion.choices[0].message.content
+
+  answer = response.choices[0].message.content
+  print("Chat completion: \n", answer)
+  return answer
+
+  # Nuevo del modelo de OpenAI o-mini
+
+  #   if answer == "true":
+  #       return "true"
+  #   elif answer == "false":
+  #       return "false"
+  #   else:
+  #       # Handle unexpected responses
+  #       print(f"Unexpected response: {response.choices[0].message.content}")
+  #       return "false"
+
+  # except openai.error.OpenAIError as e:
+  #   # Log the error appropriately
+  #   print(f"OpenAI API error: {e}")
+  #   return "false"
+
+
+
+  # Viejo, como estaba
+
+  # completion = client.chat.completions.create(
+  #   model="gpt-4",
+  #   messages=[
+  #       {"role": "system", "content": prompt},
+  #       {"role": "user", "content": user_message}
+  #   ],
+  #   temperature=temperature
+  # )
+  # print("Chat completion: \n", completion.choices[0].message.content)
+  # return completion.choices[0].message.content
 
 if __name__ == "__main__":
     import sys

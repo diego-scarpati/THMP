@@ -1,5 +1,9 @@
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
-import { acceptByFormula, gptApproval } from "../utils/pythonFunctions.cjs";
+import {
+  acceptByFormula,
+  gptApproval,
+  resume,
+} from "../utils/pythonFunctions.cjs";
 
 export const getAllJobs = async (whereClause) => {
   try {
@@ -27,9 +31,10 @@ export const getAllJobsWithDescription = async () => {
         attributes: ["description"],
       },
       raw: true,
-      nest: false,
+      nest: true,
     });
-    console.log("🚀 ~ getAllJobsWithDescription ~ jobs:", jobs);
+    // console.log("🚀 ~ getAllJobsWithDescription ~ jobs", jobs);
+    // console.log("🚀 ~ getAllJobsWithDescription ~ jobs.JobDescription:", jobs[0].JobDescription.description);
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -165,10 +170,7 @@ export const updateJob = async (id, jobInfo) => {
 export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    console.log("🚀 ~ approveByGPT ~ job:", job.id);
-    const approved = await gptApproval(job);
-    console.log("🚀 ~ approveByGPT ~ approved:", approved);
-    console.log("🚀 ~ approveByGPT ~ approved:", approved ? "yes" : "no");
+    const approved = await gptApproval(job.JobDescription.description, resume);
     try {
       const approveJob = await Job.update(
         { approvedByGPT: approved ? "yes" : "no" },
@@ -178,12 +180,10 @@ export const approveByGPT = async (jobs) => {
           },
         }
       );
-      console.log("🚀 ~ approveByGPT ~ approveJob:", approveJob);
-      return approveJob;
     } catch (error) {
       console.log("🚀 ~ updateJob ~ error:", error);
     }
-    jobsApproved++;
+    if (approved) jobsApproved++;
   }
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };

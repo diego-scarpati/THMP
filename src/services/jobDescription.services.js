@@ -35,6 +35,17 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
     let jobDescriptionsCreated = 0;
     for (const job of jobsToCreateDescriptions) {
       // const jobDescription = await fetchJobDetails(Number(job.jobId));
+      /**
+       * Before fetching the job description, check if the job description already exists
+       */
+      const jobDescriptionExists = await JobDescription.findByPk(job.id);
+      if (jobDescriptionExists) {
+        console.log(
+          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionExists:",
+          jobDescriptionExists
+        );
+        continue;
+      }
       const jobDescription = await fetchJobDetails(job.id);
       if (!jobDescription) {
         console.log(
@@ -61,14 +72,14 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
                 : null,
             },
           });
-        console.log(
-          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated:",
-          jobDescriptionCreated
-        );
-        console.log(
-          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated.dataValues:",
-          jobDescriptionCreated.dataValues
-        );
+        // console.log(
+        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated:",
+        //   jobDescriptionCreated
+        // );
+        // console.log(
+        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated.dataValues:",
+        //   jobDescriptionCreated.dataValues
+        // );
         if (created) {
           jobDescriptionsCreated++;
           const approved = await acceptByFormula(jobDescription);
