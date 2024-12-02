@@ -13,7 +13,7 @@ export const getKeywordById = async (req, res) => {
   const { id } = req.params;
   try {
     const keyword = await keywordService.getKeywordById(id);
-    return res.status(200).json(keyword);
+    return res.status(200).send(keyword);
   } catch (error) {
     console.log("🚀 ~ getKeywordById ~ error:", error);
   }

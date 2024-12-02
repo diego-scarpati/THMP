@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.js",
+    "schemas:openapi": "swagger-jsdoc -d src/routes/definition.yaml src/routes/**/*.js src/routes/**/*.yaml \"src/routes/!(definition).yaml\" -o src/schemas/openapi.json",
     "prepare": "husky install"
   },
   "eslintConfig": {
@@ -42,6 +43,8 @@
     "morgan": "^1.10.0",
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "typescript-eslint": "^8.6.0"
   }
 }

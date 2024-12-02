@@ -1,0 +1,69 @@
+components:
+  schemas:
+    Job:
+      type: object
+      required:
+        - id
+        - title
+        - url
+        - company
+      properties:
+        id:
+          type: string
+          description: The auto-generated id of the job
+        title:
+          type: string
+          description: The title of the job
+        url:
+          type: string
+          description: The url of the job in LinkedIn
+        referenceId:
+          type: string
+          description: The reference id of the job
+        posterId:
+          type: string
+          description: The poster id of the job
+        company:
+          type: string
+          description: The company of the job
+        location:
+          type: string
+          description: The string id of the location of the job
+        type:
+          type: string
+          description: The type of the job
+        postDate:
+          type: string
+          description: The post date of the job
+        benefits:
+          type: string
+          description: The benefits of the job
+        approvedByFormula:
+          type: string
+          enum:
+            - yes
+            - no
+            - pending
+          default: pending
+          description: The approved by formula output of the job
+        approvedByGPT:
+          type: string
+          enum:
+            - yes
+            - no
+            - pending
+          default: pending
+          description: The approved by OpenAI chat completion of the job
+        easyApply:
+          type: string
+          enum:
+            - yes
+            - no
+            - pending
+          default: pending
+          description: If the job has an easy apply option
+        Keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+          description: The keywords of the job

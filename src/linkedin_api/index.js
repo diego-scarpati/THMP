@@ -80,6 +80,7 @@ export const filterJobs = async (options) => {
       !title.includes("power apps") &&
       !title.includes("golang") &&
       !title.includes(".net") &&
+      !title.includes("dotnet") &&
       !title.includes("rust") &&
       !title.includes("salesforce")
     );

@@ -1,0 +1,211 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "The Hire Me Project API",
+    "version": "1.0.0",
+    "description": "Route definitions for THMP API"
+  },
+  "tags": [
+    {
+      "name": "Job",
+      "description": "Job operations"
+    },
+    {
+      "name": "Job Description",
+      "description": "Job description operations"
+    },
+    {
+      "name": "Keyword",
+      "description": "Keyword operations"
+    },
+    {
+      "name": "Cover Letter",
+      "description": "Cover Letter operations"
+    }
+  ],
+  "externalDocs": {
+    "description": "Find out more about THMP",
+    "url": "https://github.com/diego-scarpati/THMP"
+  },
+  "paths": {
+    "/api/jobs/getAll": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Get all jobs",
+        "description": "Get all jobs",
+        "responses": {
+          "200": {
+            "description": "A list of jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/keywords/getAll": {
+      "get": {
+        "tags": [
+          "Keyword"
+        ],
+        "summary": "Get all keywords",
+        "description": "Get all keywords",
+        "responses": {
+          "200": {
+            "description": "A list of keywords",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Keyword"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "openapi": {
+      "0": "3",
+      "1": ".",
+      "2": "0",
+      "3": ".",
+      "4": "3"
+    },
+    "info": {
+      "title": "The Hire Me Project API",
+      "version": "1.0.0",
+      "description": "Route definitions for THMP API"
+    },
+    "externalDocs": {
+      "description": "Find out more about THMP",
+      "url": "https://github.com/diego-scarpati/THMP"
+    }
+  },
+  "components": {
+    "schemas": {
+      "Job": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "url",
+          "company"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The auto-generated id of the job"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the job"
+          },
+          "url": {
+            "type": "string",
+            "description": "The url of the job in LinkedIn"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "The reference id of the job"
+          },
+          "posterId": {
+            "type": "string",
+            "description": "The poster id of the job"
+          },
+          "company": {
+            "type": "string",
+            "description": "The company of the job"
+          },
+          "location": {
+            "type": "string",
+            "description": "The string id of the location of the job"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the job"
+          },
+          "postDate": {
+            "type": "string",
+            "description": "The post date of the job"
+          },
+          "benefits": {
+            "type": "string",
+            "description": "The benefits of the job"
+          },
+          "approvedByFormula": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no",
+              "pending"
+            ],
+            "default": "pending",
+            "description": "The approved by formula output of the job"
+          },
+          "approvedByGPT": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no",
+              "pending"
+            ],
+            "default": "pending",
+            "description": "The approved by OpenAI chat completion of the job"
+          },
+          "easyApply": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no",
+              "pending"
+            ],
+            "default": "pending",
+            "description": "If the job has an easy apply option"
+          },
+          "Keywords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Keyword"
+            },
+            "description": "The keywords of the job"
+          }
+        }
+      },
+      "Keyword": {
+        "type": "object",
+        "required": [
+          "id",
+          "keyword"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "keyword": {
+            "type": "string",
+            "example": "Software Engineer"
+          }
+        }
+      }
+    }
+  }
+}

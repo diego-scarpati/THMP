@@ -11,6 +11,11 @@ export const getAllJobs = async (whereClause) => {
       where: {
         ...whereClause,
       },
+      include: {
+        model: Keyword,
+        attributes: ["keyword"],
+        through: { attributes: [] },
+      },
     });
     return jobs;
   } catch (error) {
@@ -110,12 +115,15 @@ export const getAllRejected = async () => {
 
 export const createJob = async (job, keyword) => {
   try {
-    const keywordInstance = await Keyword.findOne({
+    const [newKeyword, createdKeyword] = await Keyword.findOrCreate({
       where: {
         keyword,
       },
+      defaults: {
+        keyword,
+      },
     });
-    const [newJob, created] = await Job.findOrCreate({
+    const [newJob, createdJob] = await Job.findOrCreate({
       where: { id: job.id },
       defaults: {
         id: Number(job.id),
@@ -130,7 +138,7 @@ export const createJob = async (job, keyword) => {
         benefits: job.benefits || null,
       },
     });
-    await newJob.addKeyword(keywordInstance);
+    await newJob.addKeyword(newKeyword);
     return newJob;
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);

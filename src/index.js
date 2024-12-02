@@ -3,12 +3,13 @@ import morgan from "morgan";
 import router from "./routes/index.routes.js";
 import cors from "cors";
 import db from "./db/connection.cjs";
+import apiDocsRouter from "./routes/apiDocs.routes.cjs";
 
 const app = express();
 const port = 8888;
 const corsOptions = {
-  origin: "*",
   credentials: true,
+  origin: "*",
 };
 
 app.use(morgan("dev"));
@@ -18,6 +19,8 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 app.use("/api", router);
+
+app.use("/api-docs", apiDocsRouter);
 
 (async () => {
   try {

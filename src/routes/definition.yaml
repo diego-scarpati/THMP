@@ -1,0 +1,17 @@
+openapi: 3.0.3
+info:
+  title: The Hire Me Project API
+  version: 1.0.0
+  description: Route definitions for THMP API
+tags:
+  - name: Job
+    description: Job operations
+  - name: Job Description
+    description: Job description operations
+  - name: Keyword
+    description: Keyword operations
+  - name: Cover Letter
+    description: Cover Letter operations
+externalDocs:
+  description: Find out more about THMP
+  url: https://github.com/diego-scarpati/THMP

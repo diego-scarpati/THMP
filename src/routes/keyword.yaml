@@ -1,0 +1,14 @@
+components:
+  schemas:
+    Keyword:
+      type: object
+      required:
+        - id
+        - keyword
+      properties:
+        id:
+          type: integer
+          format: int64
+        keyword:
+          type: string
+          example: Software Engineer
