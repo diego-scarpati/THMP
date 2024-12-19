@@ -44,7 +44,7 @@ const JobDescription = db.define("JobDescription", {
     // allowNull: false,
   },
   skills: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     // allowNull: false,
   },
 });

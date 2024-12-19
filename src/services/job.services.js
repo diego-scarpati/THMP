@@ -38,6 +38,7 @@ export const getAllJobs = async (whereClause) => {
     delete whereClause.order;
   }
   console.log("🚀 ~ getAllJobs ~ include:", include);
+  console.log("🚀 ~ getAllJobs ~ whereClause after deletes:", whereClause);
   try {
     const jobs = await Job.findAll({
       where: {
@@ -186,7 +187,13 @@ export const updateJob = async (id, jobInfo) => {
 export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    const approved = await gptApproval(job.JobDescription.description, resume);
+    const approved = await gptApproval(
+      {
+        description: job.JobDescription.description,
+        skills: job.JobDescription.skills,
+      },
+      resume
+    );
     try {
       await Job.update(
         { approvedByGPT: approved ? "yes" : "no" },

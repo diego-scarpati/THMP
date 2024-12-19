@@ -165,7 +165,7 @@ export const approveByGPT = async (req, res) => {
     easyApply: "yes",
     approvedByFormula: "yes",
     jobDescriptions: true,
-    // skills: true,
+    skills: true,
   });
   if (jobs.length === 0) {
     return res.status(404).send("No jobs found");
