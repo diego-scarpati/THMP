@@ -1,0 +1,35 @@
+components:
+  schemas:
+    Job Description:
+      type: object
+      required:
+        - id
+        - state
+        - description
+      properties:
+        id:
+          type: integer
+          format: int64
+        state:
+          type: string
+        description:
+          type: string
+          example: We are looking for a Software Engineer to join our team. You will be working on a project that is related to the development of a new product. The ideal candidate will have experience with Python, Django, and React. You will be working with a team of developers to build the product. If you are interested in this position, please apply now!
+        companyApplyUrl:
+          type: string
+          example: https://www.linkedin.com/jobs/view/1234567890/
+        easyApplyUrl:
+          type: string
+          example: https://www.linkedin.com/jobs/view/1234567890/
+        workRemoteAllowed:
+          type: boolean
+          example: false
+        workPlace:
+          type: string
+          example: New York, NY
+        formattedExperienceLevel:
+          type: string
+          example: Entry level
+        skills:
+          type: string
+          example: Python, Django, React

@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
 import {
   acceptByFormula,
@@ -6,40 +7,46 @@ import {
 } from "../utils/pythonFunctions.cjs";
 
 export const getAllJobs = async (whereClause) => {
+  console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
+  let include = [];
+  let order = [["createdAt", "ASC"]];
+  const includeKeywords = {
+    model: Keyword,
+    attributes: ["keyword"],
+    through: { attributes: [] },
+    required: false,
+  };
+  const includeJobDescription = {
+    model: JobDescription,
+    attributes: ["description"],
+    required: true,
+  };
+  if (whereClause.jobDescriptions) {
+    if (whereClause.skills) {
+      includeJobDescription.attributes.push("skills");
+      delete whereClause.skills;
+    }
+    include.push(includeJobDescription);
+    delete whereClause.jobDescriptions;
+  }
+  if (whereClause.keywords) {
+    include.push(includeKeywords);
+    delete whereClause.keywords;
+  }
+  if (whereClause.order === "desc") {
+    order = [["createdAt", "DESC"]];
+    delete whereClause.order;
+  }
+  console.log("🚀 ~ getAllJobs ~ include:", include);
   try {
     const jobs = await Job.findAll({
       where: {
         ...whereClause,
       },
-      include: {
-        model: Keyword,
-        attributes: ["keyword"],
-        through: { attributes: [] },
-      },
+      include,
+      order,
+      logging: console.log,
     });
-    return jobs;
-  } catch (error) {
-    console.log("🚀 ~ getAllJobs ~ error:", error);
-  }
-};
-
-export const getAllJobsWithDescription = async () => {
-  try {
-    const jobs = await Job.findAll({
-      where: {
-        approvedByGPT: "pending",
-        easyApply: "yes",
-        approvedByFormula: "yes",
-      },
-      include: {
-        model: JobDescription,
-        attributes: ["description"],
-      },
-      raw: true,
-      nest: true,
-    });
-    // console.log("🚀 ~ getAllJobsWithDescription ~ jobs", jobs);
-    // console.log("🚀 ~ getAllJobsWithDescription ~ jobs.JobDescription:", jobs[0].JobDescription.description);
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -139,7 +146,7 @@ export const createJob = async (job, keyword) => {
       },
     });
     await newJob.addKeyword(newKeyword);
-    return newJob;
+    return { newJob, createdJob };
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
   }
@@ -162,6 +169,7 @@ export const bulkCreateJobs = async (jobs, keyword) => {
   }
 };
 
+// Used as a service in jobDescription.services.loopAndCreateJobDescription
 export const updateJob = async (id, jobInfo) => {
   try {
     const updatedJob = await Job.update(jobInfo, {
@@ -180,7 +188,7 @@ export const approveByGPT = async (jobs) => {
   for (const job of jobs) {
     const approved = await gptApproval(job.JobDescription.description, resume);
     try {
-      const approveJob = await Job.update(
+      await Job.update(
         { approvedByGPT: approved ? "yes" : "no" },
         {
           where: {
@@ -195,13 +203,3 @@ export const approveByGPT = async (jobs) => {
   }
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
-
-// export const checkJobDescription = async (newJobDescription) => {
-//   try {
-//     const approved = await acceptByFormula(newJobDescription)
-//     console.log("🚀 ~ checkJobDescription ~ approved:", approved)
-//     return approved
-//   } catch (error) {
-//     console.log("🚀 ~ createJobDescription ~ error:", error);
-//   }
-// }

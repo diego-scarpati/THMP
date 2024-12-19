@@ -1,0 +1,14 @@
+components:
+  schemas:
+    Cover Letter:
+      type: object
+      required:
+        - id
+        - keyword
+      properties:
+        id:
+          type: integer
+          format: int64
+        coverLetter:
+          type: string
+          example: I am writing to express my interest in the Software Engineer position at your company. I have experience with Python, Django, and React. I have worked on projects that involve building web applications using these technologies. I am confident that I can contribute to your team and help you achieve your goals. I am excited about the opportunity to work with your company and look forward to hearing from you soon.

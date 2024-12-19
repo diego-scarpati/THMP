@@ -1,8 +1,5 @@
-// const { getAllJobs } = require("./getAllJobs");
-// const { getJobDetails } = require("./getJobDetails");
 import { getAllJobs } from "./getAllJobs.cjs";
 import { getJobDetails } from "./getJobDetails.cjs";
-// import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
@@ -63,49 +60,32 @@ export const filterJobs = async (options) => {
     console.log("🚀 ~ filterJobs ~ jobs:", "No jobs found");
     return null;
   }
-  // Filter out all jobs that have senior OR lead in the title and return the ones that don't
+
+  const excludedPattern =
+    /\b(senior|lead|principal|director|manager|intern|internship|lavarel|architect|php|power|powerapps|powerapp|spring|swift|golang|\.net|dotnet|rust|salesforce|java|appian|csharp)\b/i;
+
+  const nonLatinPattern = /[^\u0000-\u007F]/;
+
   const filteredJobs = jobs.accumulatedData.filter((job) => {
-    const title = job.title.toLowerCase().split(" ");
-    return (
-      !title.includes("senior") &&
-      !title.includes("lead") &&
-      !title.includes("principal") &&
-      !title.includes("director") &&
-      !title.includes("manager") &&
-      !title.includes("intern") &&
-      !title.includes("internship") &&
-      !title.includes("lavarel") &&
-      !title.includes("architect") &&
-      !title.includes("php") &&
-      !title.includes("power apps") &&
-      !title.includes("golang") &&
-      !title.includes(".net") &&
-      !title.includes("dotnet") &&
-      !title.includes("rust") &&
-      !title.includes("salesforce")
-    );
+    return !excludedPattern.test(job.title) && !nonLatinPattern.test(job.title);
   });
   console.log("🚀 ~ filteredJobs ~ filteredJobs:", filteredJobs.length);
-  return { data: filteredJobs, total: filteredJobs.length };
+  return {
+    data: filteredJobs,
+    filteredJobs: filteredJobs.length,
+    total: jobs.total,
+  };
 };
-
-// filterJobs(options);
 
 export const fetchJobDetails = async (jobId) => {
   let id = jobId;
-  // console.log("🚀 ~ fetchJobDetails ~ id:", id)
   if (typeof jobId !== "number") {
-    // console.log("🚀 ~ fetchJobDetails ~ jobId:", jobId);
     id = parseInt(jobId);
-    // console.log("🚀 ~ fetchJobDetails ~ typoeof jobId:", typeof jobId);
   }
   const result = await getJobDetails(jobId);
-  // console.log("🚀 ~ fetchJobDetails ~ result:", result);
   if (!result.success) {
     console.log("🚀 ~ fetchJobDetails ~ result.message:", result.message);
     return null;
   }
   return result.data;
 };
-
-// fetchJobDetails(3994478124);

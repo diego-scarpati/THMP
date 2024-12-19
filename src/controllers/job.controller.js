@@ -4,8 +4,10 @@ import { saveToFile } from "../utils/pythonFunctions.cjs";
 
 export const getAllJobs = async (req, res) => {
   const options = { ...req.query };
+  console.log("🚀 ~ getAllJobs ~ options:", options);
 
   const whereClause = {};
+
   const validValues = ["yes", "no", "pending"];
 
   // Loop through each query parameter
@@ -15,25 +17,23 @@ export const getAllJobs = async (req, res) => {
       if (validValues.includes(value)) {
         whereClause[key] = value; // Only add if valid
       }
+    } else if (key === "keywords" || key === "jobDescriptions") {
+      console.log("🚀 ~ getAllJobs ~ value:", value);
+      value === "true" ? (whereClause[key] = true) : (whereClause[key] = false);
     } else if (value !== undefined) {
       // For other parameters, add them as-is if they are defined
       whereClause[key] = value;
     }
   }
+  console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
 
   try {
     const jobs = await jobService.getAllJobs(whereClause);
-    return res.status(200).json(jobs);
-  } catch (error) {
-    console.log("🚀 ~ getAllJobs ~ error:", error);
-  }
-};
-
-export const getAllJobsWithDescription = async (req, res) => {
-  try {
-    const jobs = await jobService.getAllJobsWithDescription();
-    return jobs;
-    // return res.status(200).json(jobs);
+    if (jobs.length === 0) {
+      return res.status(404).send("No jobs found");
+    } else {
+      return res.status(200).json({ total: jobs.length, jobs });
+    }
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
   }
@@ -122,15 +122,16 @@ export const searchAndCreateJobs = async (req, res) => {
       return res.status(404).send("No jobs found");
     }
     let jobsCreated = 0;
+    let jobsThatAlreadyExist = 0;
     for (const job of jobs.data) {
-      const createdJob = await jobService.createJob(job, keywords);
-      if (createdJob) {
-        jobsCreated++;
-      }
+      const returnedJob = await jobService.createJob(job, keywords);
+      returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
     }
     return res
       .status(201)
-      .send(`Created ${jobsCreated} jobs out of ${jobs.total}`);
+      .send(
+        `Created ${jobsCreated} jobs out of ${jobs.filteredJobs} that were filtered out of ${jobs.total} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB.`
+      );
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
     return res.status(500).send("An error occurred while creating jobs.");
@@ -147,22 +148,29 @@ export const bulkCreateJobs = async (req, res) => {
   }
 };
 
-export const updateJob = async (req, res) => {
-  const { id } = req.params;
-  const { jobInfo } = req.body;
-  try {
-    const job = await jobService.updateJob(id, jobInfo);
-    return res.status(200).json(job);
-  } catch (error) {
-    console.log("🚀 ~ updateJob ~ error:", error);
-  }
-};
+// export const updateJob = async (req, res) => {
+//   const { id } = req.params;
+//   const { jobInfo } = req.body;
+//   try {
+//     const job = await jobService.updateJob(id, jobInfo);
+//     return res.status(200).json(job);
+//   } catch (error) {
+//     console.log("🚀 ~ updateJob ~ error:", error);
+//   }
+// };
 
 export const approveByGPT = async (req, res) => {
-  const jobs = await getAllJobsWithDescription();
+  const jobs = await jobService.getAllJobs({
+    approvedByGPT: "pending",
+    easyApply: "yes",
+    approvedByFormula: "yes",
+    jobDescriptions: true,
+    // skills: true,
+  });
   if (jobs.length === 0) {
     return res.status(404).send("No jobs found");
   }
+  // return res.status(200).json(jobs);
   try {
     const jobsApproved = await jobService.approveByGPT(jobs);
     return res.status(200).json(jobsApproved);

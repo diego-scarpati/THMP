@@ -31,7 +31,10 @@ const getAllJobs = async (getAllJobsParamObject) => {
     experienceLevel: experienceLevel ? experienceLevel : undefined,
   };
 
+  // Old URL where only 25 jobs were returned
   // let url = "https://linkedin-api8.p.rapidapi.com/search-jobs";
+
+  // New URL where 50 jobs are returned
   let url = "https://rapid-linkedin-jobs-api.p.rapidapi.com/search-jobs-v2";
 
   const urlWithParams = () => {

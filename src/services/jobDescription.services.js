@@ -33,57 +33,48 @@ export const createJobDescription = async (jobDescription) => {
 export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
   try {
     let jobDescriptionsCreated = 0;
+    let jobAlreadyCreated = 0;
+    let jobDescriptionNotFound = 0;
     for (const job of jobsToCreateDescriptions) {
-      // const jobDescription = await fetchJobDetails(Number(job.jobId));
       /**
        * Before fetching the job description, check if the job description already exists
        */
       const jobDescriptionExists = await JobDescription.findByPk(job.id);
       if (jobDescriptionExists) {
-        console.log(
-          "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionExists:",
-          jobDescriptionExists
-        );
+        // console.log(
+        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionExists:",
+        //   jobDescriptionExists
+        // );
+        jobAlreadyCreated++;
         continue;
       }
       const jobDescription = await fetchJobDetails(job.id);
       if (!jobDescription) {
-        console.log(
-          "🚀 ~ loopAndCreateJobDescription ~ jobDescription:",
-          jobDescription
-        );
+        // console.log(
+        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescription:",
+        //   jobDescription
+        // );
+        jobDescriptionNotFound++;
+        continue;
       } else {
-        const [jobDescriptionCreated, created] =
-          await JobDescription.findOrCreate({
-            where: { id: job.id },
-            defaults: {
-              id: job.id,
-              state: jobDescription.state,
-              description: jobDescription.description,
-              companyApplyUrl:
-                jobDescription.applyMethod.companyApplyUrl || null,
-              easyApplyUrl: jobDescription.applyMethod.easyApplyUrl || null,
-              workRemoteAllowed: jobDescription.workRemoteAllowed || null,
-              workPlace: jobDescription.workPlace || null,
-              formattedExperienceLevel:
-                jobDescription.formattedExperienceLevel || null,
-              skills: jobDescription.skills
-                ? jobDescription.skills.join(", ")
-                : null,
-            },
-          });
-        // console.log(
-        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated:",
-        //   jobDescriptionCreated
-        // );
-        // console.log(
-        //   "🚀 ~ loopAndCreateJobDescription ~ jobDescriptionCreated.dataValues:",
-        //   jobDescriptionCreated.dataValues
-        // );
-        if (created) {
+        const jobDescriptionCreated = await JobDescription.create({
+          id: job.id,
+          state: jobDescription.state,
+          description: jobDescription.description,
+          companyApplyUrl: jobDescription.applyMethod.companyApplyUrl || null,
+          easyApplyUrl: jobDescription.applyMethod.easyApplyUrl || null,
+          workRemoteAllowed: jobDescription.workRemoteAllowed || null,
+          workPlace: jobDescription.workPlace || null,
+          formattedExperienceLevel:
+            jobDescription.formattedExperienceLevel || null,
+          skills: jobDescription.skills
+            ? jobDescription.skills.join(", ")
+            : null,
+        });
+        if (jobDescriptionCreated) {
           jobDescriptionsCreated++;
           const approved = await acceptByFormula(jobDescription);
-          console.log("🚀 ~ loopAndCreateJobDescription ~ approved:", approved);
+          // console.log("🚀 ~ loopAndCreateJobDescription ~ approved:", approved);
           await jobServices.updateJob(job.id, {
             approvedByFormula: approved ? "yes" : "no",
             easyApply: jobDescriptionCreated.dataValues.easyApplyUrl
@@ -93,8 +84,9 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
         }
       }
     }
-    return `Job descriptions created: ${jobDescriptionsCreated} out of ${jobsToCreateDescriptions.length}`;
+    return `Job descriptions created: ${jobDescriptionsCreated} out of ${jobsToCreateDescriptions.length}. ${jobAlreadyCreated} job descriptions already created. ${jobDescriptionNotFound} job descriptions not found by API.`;
   } catch (error) {
     console.log("🚀 ~ createJobDescription ~ error:", error);
+    return null;
   }
 };
