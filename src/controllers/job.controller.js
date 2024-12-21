@@ -178,3 +178,20 @@ export const approveByGPT = async (req, res) => {
     console.log("🚀 ~ updateJob ~ error:", error);
   }
 };
+
+export const filterByJobTitle = async (req, res) => {
+  const jobs = await jobService.getAllJobs({
+    approvedByFormula: "pending",
+  });
+  console.log("🚀 ~ filterByJobTitle ~ jobs:", jobs);
+  if (jobs.length === 0) {
+    return res.status(404).send("No jobs found");
+  }
+  // return res.status(200).json(jobs);
+  try {
+    const filteredJobs = await jobService.filterByJobTitle(jobs);
+    return res.status(200).json(filteredJobs);
+  } catch (error) {
+    console.log("🚀 ~ updateJob ~ error:", error);
+  }
+};

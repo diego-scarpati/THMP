@@ -148,6 +148,8 @@ jobRoutes.post("/searchAndCreate", jobController.searchAndCreateJobs);
  */
 jobRoutes.patch("/approveByGPT", jobController.approveByGPT);
 
+// Only to filterOut those jobs with titles that are not related to the specific purpose of the app
+jobRoutes.patch("/filterByJobTitle", jobController.filterByJobTitle);
 jobRoutes.get("/saveJobsToFile", jobController.saveJobsToFile);
 
 export default jobRoutes;

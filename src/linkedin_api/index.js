@@ -1,3 +1,8 @@
+import {
+  nonLatinPattern,
+  shouldExcludeIftitle,
+  shouldHaveInTitle,
+} from "../utils/regex.js";
 import { getAllJobs } from "./getAllJobs.cjs";
 import { getJobDetails } from "./getJobDetails.cjs";
 
@@ -61,13 +66,13 @@ export const filterJobs = async (options) => {
     return null;
   }
 
-  const excludedPattern =
-    /\b(senior|lead|principal|director|manager|intern|internship|lavarel|architect|php|power|powerapps|powerapp|spring|swift|golang|\.net|dotnet|rust|salesforce|java|appian|csharp)\b/i;
-
-  const nonLatinPattern = /[^\u0000-\u007F]/;
-
+  // For the searchAndCreate route, we will filter the jobs to exclude those that have the word "intern" in the title, those that have non-Latin characters, and those that do not have the word "engineer" in the title.
   const filteredJobs = jobs.accumulatedData.filter((job) => {
-    return !excludedPattern.test(job.title) && !nonLatinPattern.test(job.title);
+    return (
+      !shouldExcludeIftitle.test(job.title) &&
+      !nonLatinPattern.test(job.title) &&
+      shouldHaveInTitle.test(job.title)
+    );
   });
   console.log("🚀 ~ filteredJobs ~ filteredJobs:", filteredJobs.length);
   return {

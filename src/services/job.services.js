@@ -5,11 +5,16 @@ import {
   gptApproval,
   resume,
 } from "../utils/pythonFunctions.cjs";
+import {
+  nonLatinPattern,
+  shouldExcludeIftitle,
+  shouldHaveInTitle,
+} from "../utils/regex.js";
 
 export const getAllJobs = async (whereClause) => {
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
   let include = [];
-  let order = [["createdAt", "ASC"]];
+  let order = [];
   const includeKeywords = {
     model: Keyword,
     attributes: ["keyword"],
@@ -33,9 +38,13 @@ export const getAllJobs = async (whereClause) => {
     include.push(includeKeywords);
     delete whereClause.keywords;
   }
-  if (whereClause.order === "desc") {
+  if (whereClause.created === "desc") {
     order = [["createdAt", "DESC"]];
-    delete whereClause.order;
+    delete whereClause.created;
+  }
+  if (whereClause.posted === "desc") {
+    order = [["postDate", "DESC"]];
+    delete whereClause.posted;
   }
   console.log("🚀 ~ getAllJobs ~ include:", include);
   console.log("🚀 ~ getAllJobs ~ whereClause after deletes:", whereClause);
@@ -197,6 +206,30 @@ export const approveByGPT = async (jobs) => {
     try {
       await Job.update(
         { approvedByGPT: approved ? "yes" : "no" },
+        {
+          where: {
+            id: job.id,
+          },
+        }
+      );
+    } catch (error) {
+      console.log("🚀 ~ updateJob ~ error:", error);
+    }
+    if (approved) jobsApproved++;
+  }
+  return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
+};
+
+export const filterByJobTitle = async (jobs) => {
+  let jobsApproved = 0;
+  for (const job of jobs) {
+    const approved =
+      !shouldExcludeIftitle.test(job.title) &&
+      !nonLatinPattern.test(job.title) &&
+      shouldHaveInTitle.test(job.title);
+    try {
+      await Job.update(
+        { approvedByFormula: approved ? "yes" : "no" },
         {
           where: {
             id: job.id,
