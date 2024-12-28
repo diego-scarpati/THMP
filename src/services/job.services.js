@@ -9,6 +9,7 @@ import {
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
+  excludeDotNet,
 } from "../utils/regex.js";
 
 export const getAllJobs = async (whereClause) => {
@@ -226,6 +227,7 @@ export const filterByJobTitle = async (jobs) => {
     const approved =
       !shouldExcludeIftitle.test(job.title) &&
       !nonLatinPattern.test(job.title) &&
+      !excludeDotNet.test(job.title) &&
       shouldHaveInTitle.test(job.title);
     try {
       await Job.update(

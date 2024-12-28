@@ -1,4 +1,5 @@
 import {
+  excludeDotNet,
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
@@ -71,6 +72,7 @@ export const filterJobs = async (options) => {
     return (
       !shouldExcludeIftitle.test(job.title) &&
       !nonLatinPattern.test(job.title) &&
+      !excludeDotNet.test(job.title) &&
       shouldHaveInTitle.test(job.title)
     );
   });
