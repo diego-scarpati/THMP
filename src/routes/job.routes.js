@@ -123,6 +123,11 @@ jobRoutes.get("/getJobById/:id", jobController.getJobById);
  *         description: Internal server error
  */
 jobRoutes.post("/searchAndCreate", jobController.searchAndCreateJobs);
+
+jobRoutes.post(
+  "/searchAndCreateWithAllKeywords",
+  jobController.searchAndCreateWithAllKeywords
+);
 // jobRoutes.post("/bulkCreate", jobController.bulkCreate);
 
 // jobRoutes.patch("/update/:id", jobController.updateJob);

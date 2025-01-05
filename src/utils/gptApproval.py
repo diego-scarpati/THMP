@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 import json
 
+# https://chatgpt.com/g/g-67732e4cbb3881918dc19d4dbb872068-gpt-job-approval
+
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
 
@@ -27,7 +29,7 @@ def chat_completion_approval(job, resume, temperature=1):
 
     Guidelines:
     1. Analyze the job description and the provided resume thoroughly.
-    2. Determine if the candidate meets all **mandatory** requirements outlined in the job description.
+    2. Determine if the candidate meets **80%** of all **mandatory** requirements outlined in the job description.
     3. Consider the candidate's visa status and ensure it aligns with the job's citizenship or Permanent Residency (PR) requirements.
     4. **Desired** skills and experiences in the job description are not mandatory but can be considered to strengthen the evaluation.
     5. Ignore any irrelevant information that does not pertain to the job requirements.

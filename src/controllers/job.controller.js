@@ -1,4 +1,5 @@
-import * as jobService from "../services/job.services.js";
+import * as jobServices from "../services/job.services.js";
+import * as keywordServices from "../services/keyword.services.js";
 import * as linkedInApi from "../linkedin_api/index.js";
 import { saveToFile } from "../utils/pythonFunctions.cjs";
 
@@ -28,7 +29,7 @@ export const getAllJobs = async (req, res) => {
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
 
   try {
-    const jobs = await jobService.getAllJobs(whereClause);
+    const jobs = await jobServices.getAllJobs(whereClause);
     if (jobs.length === 0) {
       return res.status(404).send("No jobs found");
     } else {
@@ -42,7 +43,7 @@ export const getAllJobs = async (req, res) => {
 export const saveJobsToFile = async (req, res) => {
   const options = req.query;
   try {
-    const jobs = await jobService.getAllJobs(options);
+    const jobs = await jobServices.getAllJobs(options);
     // python function to save to file
     const saveToFilePath = await saveToFile(jobs);
     console.log("🚀 ~ saveJobsToFile ~ saveToFilePath:", saveToFilePath);
@@ -57,7 +58,7 @@ export const saveJobsToFile = async (req, res) => {
 export const getJobById = async (req, res) => {
   const { id } = req.params;
   try {
-    const job = await jobService.getJobById(id);
+    const job = await jobServices.getJobById(id);
     return res.status(200).json(job);
   } catch (error) {
     console.log("🚀 ~ getJobById ~ error:", error);
@@ -70,7 +71,7 @@ export const getAllByAccepetance = async (req, res) => {
     return res.status(400).json({ message: "Missing query params" });
   }
   try {
-    const jobs = await jobService.getAllByAccepetance(
+    const jobs = await jobServices.getAllByAccepetance(
       formulaAcceptance,
       gptAcceptance
     );
@@ -82,7 +83,7 @@ export const getAllByAccepetance = async (req, res) => {
 
 export const getAllByCoverLetter = async (req, res) => {
   try {
-    const jobs = await jobService.getAllByCoverLetter();
+    const jobs = await jobServices.getAllByCoverLetter();
     return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllByCoverLetter ~ error:", error);
@@ -91,7 +92,7 @@ export const getAllByCoverLetter = async (req, res) => {
 
 export const getAllApplied = async (req, res) => {
   try {
-    const jobs = await jobService.getAllApplied();
+    const jobs = await jobServices.getAllApplied();
     return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllApplied ~ error:", error);
@@ -100,7 +101,7 @@ export const getAllApplied = async (req, res) => {
 
 export const getAllRejected = async (req, res) => {
   try {
-    const jobs = await jobService.getAllRejected();
+    const jobs = await jobServices.getAllRejected();
     return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllApplied ~ error:", error);
@@ -124,7 +125,7 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobsCreated = 0;
     let jobsThatAlreadyExist = 0;
     for (const job of jobs.data) {
-      const returnedJob = await jobService.createJob(job, keywords);
+      const returnedJob = await jobServices.createJob(job, keywords);
       returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
     }
     return res
@@ -141,7 +142,7 @@ export const searchAndCreateJobs = async (req, res) => {
 export const bulkCreateJobs = async (req, res) => {
   const { jobsInfoArray, keywords } = req.body;
   try {
-    const jobs = await jobService.bulkCreateJobs(jobsInfoArray, keywords);
+    const jobs = await jobServices.bulkCreateJobs(jobsInfoArray, keywords);
     return res.status(201).json(jobs);
   } catch (error) {
     console.log("🚀 ~ bulkCreateJobs ~ error:", error);
@@ -152,7 +153,7 @@ export const bulkCreateJobs = async (req, res) => {
 //   const { id } = req.params;
 //   const { jobInfo } = req.body;
 //   try {
-//     const job = await jobService.updateJob(id, jobInfo);
+//     const job = await jobServices.updateJob(id, jobInfo);
 //     return res.status(200).json(job);
 //   } catch (error) {
 //     console.log("🚀 ~ updateJob ~ error:", error);
@@ -160,7 +161,7 @@ export const bulkCreateJobs = async (req, res) => {
 // };
 
 export const approveByGPT = async (req, res) => {
-  const jobs = await jobService.getAllJobs({
+  const jobs = await jobServices.getAllJobs({
     approvedByGPT: "pending",
     easyApply: "yes",
     approvedByFormula: "yes",
@@ -172,7 +173,7 @@ export const approveByGPT = async (req, res) => {
   }
   // return res.status(200).json(jobs);
   try {
-    const jobsApproved = await jobService.approveByGPT(jobs);
+    const jobsApproved = await jobServices.approveByGPT(jobs);
     return res.status(200).json(jobsApproved);
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
@@ -180,7 +181,7 @@ export const approveByGPT = async (req, res) => {
 };
 
 export const filterByJobTitle = async (req, res) => {
-  const jobs = await jobService.getAllJobs({
+  const jobs = await jobServices.getAllJobs({
     approvedByFormula: "pending",
   });
   console.log("🚀 ~ filterByJobTitle ~ jobs:", jobs);
@@ -189,9 +190,73 @@ export const filterByJobTitle = async (req, res) => {
   }
   // return res.status(200).json(jobs);
   try {
-    const filteredJobs = await jobService.filterByJobTitle(jobs);
+    const filteredJobs = await jobServices.filterByJobTitle(jobs);
     return res.status(200).json(filteredJobs);
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
+  }
+};
+
+export const searchAndCreateWithAllKeywords = async (req, res) => {
+  console.log("🚀 ~ searchAndCreateWithAllKeywords ~ req.query:", req.query);
+  const { locationId, datePosted, sort } = req.query;
+  try {
+    // Get all keywords
+    const keywords = await keywordServices.getAllKeywords();
+    console.log(
+      "🚀 ~ searchAndCreateWithAllKeywords ~ keywords:",
+      keywords.length
+    );
+
+    // If no keywords found, return 404
+    if (!keywords || keywords.length === 0) {
+      console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No keywords found");
+      return res.status(404).send("No keywords found");
+    }
+
+    // Creating accumulative variables for jobs created and jobs that already exist
+    let jobsCreated = 0;
+    let jobsThatAlreadyExist = 0;
+    let searchedJobs = 0;
+
+    // Loop through each keyword
+    for (const keyword of keywords) {
+      console.log(
+        "🚀 ~ searchAndCreateWithAllKeywords ~ keyword:",
+        keyword.keyword
+      );
+
+      // Searching and filtering jobs according to the specific keyword on the loop
+      const jobs = await linkedInApi.filterJobs({
+        keywords: keyword.keyword,
+        locationId,
+        datePosted,
+        sort,
+      });
+      searchedJobs += jobs.total;
+      console.log("🚀 ~ searchAndCreateWithAllKeywords ~ jobs:", jobs.length);
+
+      // If no jobs found, continue to the next keyword
+      if (!jobs || jobs.length === 0) {
+        console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No jobs found");
+        continue;
+      }
+
+      // Loop through each job and create it
+      for (const job of jobs.data) {
+        console.log("🚀 ~ searchAndCreateWithAllKeywords ~ job:", job);
+        const returnedJob = await jobServices.createJob(job, keyword.keyword);
+        returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+      }
+    }
+
+    return res
+      .status(201)
+      .send(
+        `Created ${jobsCreated} jobs out of ${jobsCreated + jobsThatAlreadyExist} that were filtered out of ${searchedJobs} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB.`
+      );
+  } catch (error) {
+    console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
+    return res.status(500).send("An error occurred while creating jobs.");
   }
 };
