@@ -33,7 +33,7 @@ export const getAllJobs = async (req, res) => {
     if (jobs.length === 0) {
       return res.status(404).send("No jobs found");
     } else {
-      return res.status(200).json({ total: jobs.length, jobs });
+      return res.status(200).json(jobs);
     }
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -184,7 +184,7 @@ export const filterByJobTitle = async (req, res) => {
   const jobs = await jobServices.getAllJobs({
     approvedByFormula: "pending",
   });
-  console.log("🚀 ~ filterByJobTitle ~ jobs:", jobs);
+  // console.log("🚀 ~ filterByJobTitle ~ jobs:", jobs);
   if (jobs.length === 0) {
     return res.status(404).send("No jobs found");
   }
@@ -233,18 +233,15 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         datePosted,
         sort,
       });
-      searchedJobs += jobs.total;
-      console.log("🚀 ~ searchAndCreateWithAllKeywords ~ jobs:", jobs.length);
-
       // If no jobs found, continue to the next keyword
       if (!jobs || jobs.length === 0) {
         console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No jobs found");
         continue;
       }
+      if (jobs.total) searchedJobs += jobs.total;
 
       // Loop through each job and create it
       for (const job of jobs.data) {
-        console.log("🚀 ~ searchAndCreateWithAllKeywords ~ job:", job);
         const returnedJob = await jobServices.createJob(job, keyword.keyword);
         returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
       }

@@ -16,6 +16,15 @@ export const getAllJobs = async (whereClause) => {
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
   let include = [];
   let order = [];
+  const page = whereClause.page ? whereClause.page : 1;
+  const limit = whereClause.limit ? whereClause.limit : 50;
+  const offset = (page - 1) * limit;
+  console.log("🚀 ~ getAllJobs ~ offset:", offset);
+
+  const total = await Job.count();
+
+  const totalPages = Math.ceil(total / limit);
+
   const includeKeywords = {
     model: Keyword,
     attributes: ["keyword"],
@@ -56,9 +65,17 @@ export const getAllJobs = async (whereClause) => {
       },
       include,
       order,
+      limit,
+      offset,
       logging: console.log,
     });
-    return jobs;
+    return {
+      total, // Total number of records
+      totalPages, // Total number of pages
+      currentPage: page, // Current page number
+      limit, // Limit per page
+      data: jobs, // Paginated data
+    };
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
   }
