@@ -1,68 +1,34 @@
-import { where } from "sequelize";
+import { Op } from "sequelize";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
-import {
-  acceptByFormula,
-  gptApproval,
-  resume,
-} from "../utils/pythonFunctions.cjs";
+// import {
+//   acceptByFormula,
+//   gptApproval,
+//   resume,
+//   rejectingSkills
+// } from "../utils/pythonFunctions.cjs";
 import {
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
   excludeDotNet,
+  excludeCs,
+  excludeCSharp,
+  excludeCPlusPlus,
 } from "../utils/regex.js";
+import { approveByAssistantGPT } from "../utils/assistants.cjs";
+import shouldAcceptJob from "../utils/approveByFormula.cjs";
 
 export const getAllJobs = async (whereClause) => {
+  const { where, include, limit, offset, order } = whereClause;
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
-  let include = [];
-  let order = [];
-  const page = whereClause.page ? whereClause.page : 1;
-  const limit = whereClause.limit ? whereClause.limit : 50;
-  const offset = (page - 1) * limit;
-  console.log("🚀 ~ getAllJobs ~ offset:", offset);
+  // console.log("🚀 ~ getAllJobs ~ where:", where)
 
-  const total = await Job.count();
+  const total = await Job.count({ where, logging: console.log });
+  console.log("🚀 ~ getAllJobs ~ total:", total);
 
-  const totalPages = Math.ceil(total / limit);
-
-  const includeKeywords = {
-    model: Keyword,
-    attributes: ["keyword"],
-    through: { attributes: [] },
-    required: false,
-  };
-  const includeJobDescription = {
-    model: JobDescription,
-    attributes: ["description"],
-    required: true,
-  };
-  if (whereClause.jobDescriptions) {
-    if (whereClause.skills) {
-      includeJobDescription.attributes.push("skills");
-      delete whereClause.skills;
-    }
-    include.push(includeJobDescription);
-    delete whereClause.jobDescriptions;
-  }
-  if (whereClause.keywords) {
-    include.push(includeKeywords);
-    delete whereClause.keywords;
-  }
-  if (whereClause.created === "desc") {
-    order = [["createdAt", "DESC"]];
-    delete whereClause.created;
-  }
-  if (whereClause.posted === "desc") {
-    order = [["postDate", "DESC"]];
-    delete whereClause.posted;
-  }
-  console.log("🚀 ~ getAllJobs ~ include:", include);
-  console.log("🚀 ~ getAllJobs ~ whereClause after deletes:", whereClause);
   try {
     const jobs = await Job.findAll({
-      where: {
-        ...whereClause,
-      },
+      where,
       include,
       order,
       limit,
@@ -71,9 +37,6 @@ export const getAllJobs = async (whereClause) => {
     });
     return {
       total, // Total number of records
-      totalPages, // Total number of pages
-      currentPage: page, // Current page number
-      limit, // Limit per page
       data: jobs, // Paginated data
     };
   } catch (error) {
@@ -87,6 +50,21 @@ export const getJobById = async (id) => {
     return job;
   } catch (error) {
     console.log("🚀 ~ getJobById ~ error:", error);
+  }
+};
+
+export const getJobsByCompanyName = async (companyName) => {
+  try {
+    const jobs = await Job.findAll({
+      where: {
+        company: {
+          [Op.substring]: companyName,
+        },
+      },
+    });
+    return jobs;
+  } catch (error) {
+    console.log("🚀 ~ getJobsByCompanyName ~ error:", error);
   }
 };
 
@@ -211,19 +189,66 @@ export const updateJob = async (id, jobInfo) => {
   }
 };
 
+export const updateApprovedByDate = async (jobId) => {
+  try {
+    const updatedJob = await Job.update(
+      { easyApply: "yes" },
+      {
+        where: {
+          id: jobId,
+        },
+      }
+    );
+    return updatedJob;
+  } catch (error) {
+    console.log("🚀 ~ updateJob ~ error:", error);
+  }
+};
+
 export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    const approved = await gptApproval(
-      {
-        description: job.JobDescription.description,
-        skills: job.JobDescription.skills,
-      },
-      resume
+    console.log(
+      "🚀 ~ approveByGPT ~ job:",
+      job.dataValues.JobDescription.dataValues.description
     );
+    const approved = await approveByAssistantGPT({
+      description: job.dataValues.JobDescription.dataValues.description,
+      // skills: job.dataValues.JobDescription.dataValues.skills,
+    });
+    console.log("🚀 ~ approveByGPT ~ approved:", approved);
     try {
       await Job.update(
-        { approvedByGPT: approved ? "yes" : "no" },
+        { approvedByGPT: approved === "true" ? "yes" : "no" },
+        {
+          where: {
+            id: job.id,
+          },
+        }
+      );
+    } catch (error) {
+      console.log("🚀 ~ updateJob ~ error:", error);
+    }
+    if (approved) jobsApproved++;
+  }
+  return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
+};
+
+export const approveByFormula = async (jobs) => {
+  let jobsApproved = 0;
+  for (const job of jobs) {
+    // console.log("🚀 ~ approveByFormula ~ job:", job)
+    const approved = await shouldAcceptJob(
+      {
+        description: job.dataValues.JobDescription.description,
+        skills: job.dataValues.JobDescription.skills,
+      },
+      4
+    );
+    console.log("🚀 ~ approveByFormula ~ approved:", approved);
+    try {
+      await Job.update(
+        { approvedByFormula: approved ? "yes" : "no" },
         {
           where: {
             id: job.id,
@@ -241,10 +266,20 @@ export const approveByGPT = async (jobs) => {
 export const filterByJobTitle = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
+    if (job.approvedByFormula === "yes") {
+      jobsApproved++;
+      continue;
+    }
+    if (job.approvedByFormula === "no") {
+      continue;
+    }
     const approved =
       !shouldExcludeIftitle.test(job.title) &&
       !nonLatinPattern.test(job.title) &&
       !excludeDotNet.test(job.title) &&
+      // !excludeCs.test(job.title) &&
+      !excludeCSharp.test(job.title) &&
+      !excludeCPlusPlus.test(job.title) &&
       shouldHaveInTitle.test(job.title);
     try {
       await Job.update(

@@ -39,7 +39,7 @@ jobRoutes.get("/getAll", jobController.getAllJobs);
 
 /**
  * @swagger
- * /api/jobs/getAll/:id:
+ * /api/jobs/getJobById/:id:
  *   get:
  *     tags:
  *       - Job
@@ -67,7 +67,42 @@ jobRoutes.get("/getAll", jobController.getAllJobs);
  *       '500':
  *         description: Internal server error
  */
+
 jobRoutes.get("/getJobById/:id", jobController.getJobById);
+/**
+ * @swagger
+ * /api/jobs/getJobsByCompanyName/:companyName:
+ *   get:
+ *     tags:
+ *       - Job
+ *     summary: Get job by company name
+ *     description: Get job by company name
+ *     parameters:
+ *       - name: companyName
+ *         in: path
+ *         description: Company name
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: int64
+ *     responses:
+ *       '200':
+ *         description: Job object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Job'
+ *       '404':
+ *         description: Job not found
+ *       '500':
+ *         description: Internal server error
+ */
+jobRoutes.get(
+  "/getJobsByCompanyName/:companyName",
+  jobController.getJobsByCompanyName
+);
 
 // jobRoutes.get("/getAllByAccepetance", jobController.getAllByAccepetance);
 // jobRoutes.get("/getAllByCoverLetter", jobController.getAllByCoverLetter);
@@ -153,6 +188,10 @@ jobRoutes.post(
  */
 jobRoutes.patch("/approveByGPT", jobController.approveByGPT);
 
+// Update jobs with the approveByFormula function
+jobRoutes.patch("/approveByFormula", jobController.approveByFormula);
+// Update those jobs that are "old" or have already applied to
+jobRoutes.patch("/updateApprovedByDate", jobController.updateApprovedByDate);
 // Only to filterOut those jobs with titles that are not related to the specific purpose of the app
 jobRoutes.patch("/filterByJobTitle", jobController.filterByJobTitle);
 jobRoutes.get("/saveJobsToFile", jobController.saveJobsToFile);

@@ -178,70 +178,71 @@ const resume = {
   ],
 };
 
-const acceptByFormula = async (job) => {
-  let options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    scriptPath: path.join(__dirname),
-    args: [
-      JSON.stringify(job),
-      // senior|lead|principal|director|manager|intern|internship|lavarel|architect|php|power|powerapps|powerapp|spring|swift|golang|\.net|dotnet|rust|salesforce|java|appian|csharp
-      JSON.stringify([
-        ".Net",
-        "Appian",
-        "AppSec",
-        "Architect",
-        "C",
-        "C#",
-        "C++",
-        "Connex",
-        "CSharp",
-        "dotnet",
-        "Director",
-        "Go",
-        "Golang",
-        "Goolang",
-        "Intern",
-        "Internship",
-        "Java",
-        "Lavarel",
-        "Lead",
-        "Manager",
-        "Principal",
-        "Rust",
-        "Senior",
-        "PHP",
-        "Power",
-        "Power App",
-        "Power Apps",
-        "Saledforce",
-        "Spring",
-        "Spring Boot",
-        "Swift",
-        "Synfony",
-      ]),
-      3,
-    ],
-  };
+const rejectingSkills = [
+  ".Net",
+  "Appian",
+  "AppSec",
+  "Architect",
+  "C",
+  "C#",
+  "C++",
+  "Connex",
+  "CSharp",
+  "dotnet",
+  "Director",
+  "Go",
+  "Golang",
+  "Goolang",
+  "Intern",
+  "Internship",
+  "Java",
+  "Lavarel",
+  "Lead",
+  "Manager",
+  "Principal",
+  "Rust",
+  "Senior",
+  "PHP",
+  "Power",
+  "Power App",
+  "Power Apps",
+  "Saledforce",
+  "Spring",
+  "Spring Boot",
+  "Swift",
+  "Synfony",
+];
 
-  try {
-    const results = await PythonShell.run("acceptByFormula.py", options);
+// const acceptByFormula = async (job, rejectingSkills, experience) => {
+//   let options = {
+//     mode: "text",
+//     pythonOptions: ["-u"],
+//     scriptPath: path.join(__dirname),
+//     args: [
+//       JSON.stringify(job),
+//       JSON.stringify(rejectingSkills),
+//       experience,
+//     ],
+//   };
 
-    // Check the last result, convert it to lowercase for robustness
-    const lastResult = results[results.length - 1].toLowerCase();
+//   try {
+//     const results = await PythonShell.run("acceptByFormula.py", options);
 
-    // Determine acceptance based on the Python result
-    if (lastResult === "true") {
-      console.log("Job accepted by formula");
-      return true;
-    } else {
-      console.log("Job rejected by formula");
-      return false;
-    }
-  } catch (err) {
-    console.error("Error in acceptByFormula:", err);
-  }
-};
+//     // Check the last result, convert it to lowercase for robustness
+//     const lastResult = results[results.length - 1].toLowerCase();
+
+//     // Determine acceptance based on the Python result
+//     if (lastResult === "true") {
+//       console.log("Job accepted by formula");
+//       return true;
+//     } else {
+//       console.log("Job rejected by formula");
+//       return false;
+//     }
+//   } catch (err) {
+//     console.error("Error in acceptByFormula:", err);
+//   }
+// };
 
 const saveToFile = async (jobs) => {
   let options = {
@@ -260,32 +261,32 @@ const saveToFile = async (jobs) => {
   }
 };
 
-const gptApproval = async (job) => {
-  let options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    scriptPath: path.join(__dirname),
-    args: [JSON.stringify(job), JSON.stringify(resume), 1],
-  };
-  try {
-    const results = await PythonShell.run("gptApproval.py", options);
-    console.log("🚀 ~ gptApproval ~ results:", results);
+// const gptApproval = async (job) => {
+//   let options = {
+//     mode: "text",
+//     pythonOptions: ["-u"],
+//     scriptPath: path.join(__dirname),
+//     args: [JSON.stringify(job), JSON.stringify(resume), 1],
+//   };
+//   try {
+//     const results = await PythonShell.run("gptApproval.py", options);
+//     console.log("🚀 ~ gptApproval ~ results:", results);
 
-    // Check the last result, convert it to lowercase for robustness
-    const lastResult = results[results.length - 1].toLowerCase().trim();
-    console.log("🚀 ~ gptApproval ~ lastResult:", lastResult);
+//     // Check the last result, convert it to lowercase for robustness
+//     const lastResult = results[results.length - 1].toLowerCase().trim();
+//     console.log("🚀 ~ gptApproval ~ lastResult:", lastResult);
 
-    // Determine acceptance based on the Python result
-    if (lastResult === "true") {
-      console.log("Job accepted by formula");
-      return true;
-    } else {
-      console.log("Job rejected by formula");
-      return false;
-    }
-  } catch (err) {
-    console.error("Error in acceptByFormula:", err);
-  }
-};
+//     // Determine acceptance based on the Python result
+//     if (lastResult === "true") {
+//       console.log("Job accepted by formula");
+//       return true;
+//     } else {
+//       console.log("Job rejected by formula");
+//       return false;
+//     }
+//   } catch (err) {
+//     console.error("Error in acceptByFormula:", err);
+//   }
+// };
 
-module.exports = { acceptByFormula, saveToFile, gptApproval, resume };
+module.exports = { saveToFile, resume, rejectingSkills };

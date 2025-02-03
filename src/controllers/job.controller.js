@@ -2,38 +2,140 @@ import * as jobServices from "../services/job.services.js";
 import * as keywordServices from "../services/keyword.services.js";
 import * as linkedInApi from "../linkedin_api/index.js";
 import { saveToFile } from "../utils/pythonFunctions.cjs";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
+
+const modelOptions = [
+  // Model parameters
+  "id",
+  "title",
+  "url",
+  "referenceId",
+  "posterId",
+  "company",
+  "location",
+  "type",
+  "postDate",
+  "benefits",
+  "approvedByFormula",
+  "approvedByGPT",
+  "easyApply",
+  // Include parameters
+  "keywords",
+  "jobDescriptions",
+  "skills",
+  // SQL Parameters
+  "limit",
+  "page",
+  "created",
+];
+
+// Location IDs
+// const locationId = {
+//   "sydney"
+// }
 
 export const getAllJobs = async (req, res) => {
   const options = { ...req.query };
-  console.log("🚀 ~ getAllJobs ~ options:", options);
 
-  const whereClause = {};
-
-  const validValues = ["yes", "no", "pending"];
-
-  // Loop through each query parameter
-  for (const [key, value] of Object.entries(options)) {
-    // Check if the parameter is approvedByFormula and validate it
-    if (key === "approvedByFormula" || key === "approvedByGPT") {
-      if (validValues.includes(value)) {
-        whereClause[key] = value; // Only add if valid
-      }
-    } else if (key === "keywords" || key === "jobDescriptions") {
-      console.log("🚀 ~ getAllJobs ~ value:", value);
-      value === "true" ? (whereClause[key] = true) : (whereClause[key] = false);
-    } else if (value !== undefined) {
-      // For other parameters, add them as-is if they are defined
-      whereClause[key] = value;
+  // Options should only contain the keys that are in the modelOptions array
+  for (const key in options) {
+    if (!modelOptions.includes(key)) {
+      delete options[key];
     }
   }
-  console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
+
+  let page = options.page ? parseInt(options.page) : 1;
+  if (options.page) {
+    page = options.page ? parseInt(options.page) : 1;
+    delete options.page;
+  }
+
+  // Should separate the where clause from the include, limit, page, offset and order clauses
+  const whereClause = {
+    where: {},
+    include: [],
+    order: [
+      options.created === "desc"
+        ? ["createdAt", "DESC"]
+        : options.postDate === "desc"
+          ? ["postDate", "DESC"]
+          : ["createdAt", "ASC"],
+    ],
+    limit: options.limit ? parseInt(options.limit) : 50,
+    offset: (page - 1) * (options.limit ? parseInt(options.limit) : 50),
+  };
+
+  if (whereClause.order.includes(undefined)) {
+    delete whereClause.order;
+  }
+
+  // Loop through options and modify whereClause accordingly
+  for (const key in options) {
+    // Switch case for the options to separate them into where, include, limit, page, offset and order
+    switch (key) {
+      case "created":
+        break;
+      case "jobDescriptions":
+        whereClause.include.push({
+          model: JobDescription,
+          attributes: ["description"],
+          required: false,
+        });
+        if (options.skills) {
+          whereClause.include[0].attributes.push("skills");
+          delete options.skills;
+        }
+        break;
+      case "keywords":
+        whereClause.include.push({
+          model: Keyword,
+          attributes: ["keyword"],
+          through: { attributes: [] },
+          required: false,
+        });
+        break;
+      default:
+        if (key.approvedByGPT) {
+          // Check if the is strictly equal to "yes" or "no" or "pending"
+          if (["yes", "no", "pending"].includes(key.approveByGPT)) {
+            whereClause.where.approveByGPT = key.approveByGPT;
+          }
+        }
+        if (key.approvedByFormula) {
+          // Check if the is strictly equal to "yes" or "no" or "pending"
+          if (["yes", "no", "pending"].includes(key.approveByFormula)) {
+            whereClause.where.approveByFormula = key.approveByFormula;
+          }
+        }
+        if (key.easyApply) {
+          // Check if the is strictly equal to "yes" or "no" or "pending"
+          if (["yes", "no", "pending"].includes(key.easyApply)) {
+            whereClause.where.easyApply = key.easyApply;
+          }
+        } else {
+          if (key === "limit" || key === "page") {
+            break;
+          }
+          whereClause.where[key] = options[key];
+        }
+    }
+  }
 
   try {
     const jobs = await jobServices.getAllJobs(whereClause);
-    if (jobs.length === 0) {
+    if (jobs.total === 0) {
       return res.status(404).send("No jobs found");
     } else {
-      return res.status(200).json(jobs);
+      // console.log("🚀 ~ getAllJobs ~ jobs:", jobs)
+      const totalPages = Math.ceil(jobs.total / whereClause.limit);
+
+      return res.status(200).json({
+        total: jobs.total,
+        totalPages,
+        currentPage: page,
+        limit: whereClause.limit,
+        jobs: jobs.data,
+      });
     }
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
@@ -62,6 +164,16 @@ export const getJobById = async (req, res) => {
     return res.status(200).json(job);
   } catch (error) {
     console.log("🚀 ~ getJobById ~ error:", error);
+  }
+};
+
+export const getJobsByCompanyName = async (req, res) => {
+  const { companyName } = req.params;
+  try {
+    const job = await jobServices.getJobsByCompanyName(companyName);
+    return res.status(200).json(job);
+  } catch (error) {
+    console.log("🚀 ~ getJobsByCompanyName ~ error:", error);
   }
 };
 
@@ -149,31 +261,83 @@ export const bulkCreateJobs = async (req, res) => {
   }
 };
 
-// export const updateJob = async (req, res) => {
-//   const { id } = req.params;
-//   const { jobInfo } = req.body;
-//   try {
-//     const job = await jobServices.updateJob(id, jobInfo);
-//     return res.status(200).json(job);
-//   } catch (error) {
-//     console.log("🚀 ~ updateJob ~ error:", error);
-//   }
-// };
+export const updateApprovedByDate = async (req, res) => {
+  let jobsUpdated = 0;
+  try {
+    const jobs = await jobServices.getAllJobs({
+      where: {
+        approvedByFormula: "yes",
+        easyApply: "pending",
+      },
+    });
+    console.log("🚀 ~ updateApprovedByDate ~ jobs:", jobs.total);
+    if (jobs.total === 0) {
+      return res.status(404).send("No jobs found");
+    }
+    for (const job of jobs.data) {
+      await jobServices.updateApprovedByDate(job.id);
+      jobsUpdated++;
+    }
+    return res.status(200).json(jobsUpdated);
+  } catch (error) {
+    console.log("🚀 ~ updateApprovedByDate ~ error:", error);
+  }
+};
 
 export const approveByGPT = async (req, res) => {
-  const jobs = await jobServices.getAllJobs({
-    approvedByGPT: "pending",
-    easyApply: "yes",
-    approvedByFormula: "yes",
-    jobDescriptions: true,
-    skills: true,
-  });
+  const whereClause = {
+    where: {
+      approvedByGPT: "pending",
+      approvedByFormula: "pending",
+      easyApply: "yes",
+    },
+    include: [
+      {
+        model: JobDescription,
+        attributes: ["description", "skills"],
+        required: false,
+      },
+    ],
+    order: [["createdAt", "ASC"]],
+    limit: 300,
+    offset: 0,
+  };
+  const jobs = await jobServices.getAllJobs(whereClause);
+  console.log("🚀 ~ approveByGPT ~ jobs:", jobs.total);
   if (jobs.length === 0) {
     return res.status(404).send("No jobs found");
   }
-  // return res.status(200).json(jobs);
   try {
-    const jobsApproved = await jobServices.approveByGPT(jobs);
+    const jobsApproved = await jobServices.approveByGPT(jobs.data);
+    return res.status(200).json(jobsApproved);
+  } catch (error) {
+    console.log("🚀 ~ updateJob ~ error:", error);
+  }
+};
+
+export const approveByFormula = async (req, res) => {
+  const whereClause = {
+    where: {
+      approvedByFormula: "pending",
+      // id: "4138534746"
+    },
+    include: [
+      {
+        model: JobDescription,
+        attributes: ["description", "skills"],
+        required: false,
+      },
+    ],
+    order: [["createdAt", "ASC"]],
+    limit: 500,
+    offset: 0,
+  };
+  const jobs = await jobServices.getAllJobs(whereClause);
+  if (jobs.length === 0) {
+    return res.status(404).send("No jobs found");
+  }
+  try {
+    const jobsApproved = await jobServices.approveByFormula(jobs.data);
     return res.status(200).json(jobsApproved);
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
@@ -190,7 +354,7 @@ export const filterByJobTitle = async (req, res) => {
   }
   // return res.status(200).json(jobs);
   try {
-    const filteredJobs = await jobServices.filterByJobTitle(jobs);
+    const filteredJobs = await jobServices.filterByJobTitle(jobs.data);
     return res.status(200).json(filteredJobs);
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);

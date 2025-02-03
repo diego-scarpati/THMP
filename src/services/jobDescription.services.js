@@ -1,7 +1,8 @@
 import { fetchJobDetails } from "../linkedin_api/index.js";
 import { JobDescription } from "../models/index.js";
 import * as jobServices from "../services/job.services.js";
-import { acceptByFormula } from "../utils/pythonFunctions.cjs";
+// import { acceptByFormula } from "../utils/pythonFunctions.cjs";
+import shouldAcceptJob from "../utils/approveByFormula.cjs";
 
 export const getAllJobDescriptions = async () => {
   try {
@@ -73,8 +74,13 @@ export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
         });
         if (jobDescriptionCreated) {
           jobDescriptionsCreated++;
-          const approved = await acceptByFormula(jobDescription);
-          // console.log("🚀 ~ loopAndCreateJobDescription ~ approved:", approved);
+          const approved = await shouldAcceptJob(
+            {
+              description: jobDescription.description,
+              skills: jobDescription.skills,
+            },
+            4
+          );
           await jobServices.updateJob(job.id, {
             approvedByFormula: approved ? "yes" : "no",
             easyApply: jobDescriptionCreated.dataValues.easyApplyUrl
