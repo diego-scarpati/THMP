@@ -61,6 +61,13 @@ export const getJobsByCompanyName = async (companyName) => {
           [Op.substring]: companyName,
         },
       },
+      include: [
+        {
+          model: JobDescription,
+          attributes: ["description", "skills"],
+          required: false,
+        },
+      ],
     });
     return jobs;
   } catch (error) {
@@ -208,10 +215,10 @@ export const updateApprovedByDate = async (jobId) => {
 export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    console.log(
-      "🚀 ~ approveByGPT ~ job:",
-      job.dataValues.JobDescription.dataValues.description
-    );
+    // console.log(
+    //   "🚀 ~ approveByGPT ~ job:",
+    //   job.dataValues.JobDescription.dataValues.description
+    // );
     const approved = await approveByAssistantGPT({
       description: job.dataValues.JobDescription.dataValues.description,
       // skills: job.dataValues.JobDescription.dataValues.skills,
@@ -219,7 +226,7 @@ export const approveByGPT = async (jobs) => {
     console.log("🚀 ~ approveByGPT ~ approved:", approved);
     try {
       await Job.update(
-        { approvedByGPT: approved === "true" ? "yes" : "no" },
+        { approvedByGPT: approved },
         {
           where: {
             id: job.id,
@@ -229,7 +236,7 @@ export const approveByGPT = async (jobs) => {
     } catch (error) {
       console.log("🚀 ~ updateJob ~ error:", error);
     }
-    if (approved) jobsApproved++;
+    if (approved === "yes") jobsApproved++;
   }
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
@@ -237,28 +244,50 @@ export const approveByGPT = async (jobs) => {
 export const approveByFormula = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    // console.log("🚀 ~ approveByFormula ~ job:", job)
-    const approved = await shouldAcceptJob(
-      {
-        description: job.dataValues.JobDescription.description,
-        skills: job.dataValues.JobDescription.skills,
-      },
-      4
-    );
-    console.log("🚀 ~ approveByFormula ~ approved:", approved);
-    try {
-      await Job.update(
-        { approvedByFormula: approved ? "yes" : "no" },
-        {
-          where: {
-            id: job.id,
-          },
-        }
+    const today = new Date();
+    const postDate = new Date(job.dataValues.postDate);
+    const shouldRejectByPostDate = today - postDate > 7 * 24 * 60 * 60 * 1000;
+
+    if (shouldRejectByPostDate) {
+      console.log(
+        "🚀 ~ approveByFormula ~ shouldRejectByPostDate:",
+        shouldRejectByPostDate
       );
-    } catch (error) {
-      console.log("🚀 ~ updateJob ~ error:", error);
+      try {
+        await Job.update(
+          { approvedByFormula: "no" },
+          {
+            where: {
+              id: job.id,
+            },
+          }
+        );
+      } catch (error) {
+        console.log("🚀 ~ updateJob ~ error:", error);
+      }
+    } else {
+      const approved = await shouldAcceptJob(
+        {
+          description: job.dataValues.JobDescription.description,
+          skills: job.dataValues.JobDescription.skills,
+        },
+        4
+      );
+      console.log("🚀 ~ approveByFormula ~ approved:", approved);
+      try {
+        await Job.update(
+          { approvedByFormula: approved ? "yes" : "no" },
+          {
+            where: {
+              id: job.id,
+            },
+          }
+        );
+      } catch (error) {
+        console.log("🚀 ~ updateJob ~ error:", error);
+      }
+      if (approved) jobsApproved++;
     }
-    if (approved) jobsApproved++;
   }
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };

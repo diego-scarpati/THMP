@@ -166,6 +166,7 @@ function checkExperience(jobDescription, candidateExperience) {
  * @returns {boolean} - True if the candidate meets the criteria, otherwise false.
  */
 function checkSkills(jobSkills) {
+  console.log("🚀 ~ checkSkills ~ jobSkills:", jobSkills);
   // If jobSkills is null, undefined, or an empty array, immediately return false.
   if (!jobSkills || jobSkills.split(" ,").length === 0) {
     return true;

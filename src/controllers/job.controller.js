@@ -81,8 +81,19 @@ export const getAllJobs = async (req, res) => {
           attributes: ["description"],
           required: false,
         });
-        if (options.skills) {
+        // if (options.skills) {
+        // }
+        break;
+      case "skills":
+        if (whereClause.include.includes("jobDescriptions")) {
           whereClause.include[0].attributes.push("skills");
+          delete options.skills;
+        } else {
+          whereClause.include.push({
+            model: JobDescription,
+            attributes: ["skills"],
+            required: false,
+          });
           delete options.skills;
         }
         break;
@@ -288,7 +299,7 @@ export const approveByGPT = async (req, res) => {
   const whereClause = {
     where: {
       approvedByGPT: "pending",
-      approvedByFormula: "pending",
+      approvedByFormula: "yes",
       easyApply: "yes",
     },
     include: [
@@ -318,8 +329,10 @@ export const approveByGPT = async (req, res) => {
 export const approveByFormula = async (req, res) => {
   const whereClause = {
     where: {
-      approvedByFormula: "pending",
       // id: "4138534746"
+      approvedByFormula: "yes",
+      approvedByGPT: "pending",
+      easyApply: "yes",
     },
     include: [
       {
@@ -329,7 +342,7 @@ export const approveByFormula = async (req, res) => {
       },
     ],
     order: [["createdAt", "ASC"]],
-    limit: 500,
+    limit: 595,
     offset: 0,
   };
   const jobs = await jobServices.getAllJobs(whereClause);
