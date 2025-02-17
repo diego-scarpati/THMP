@@ -15,7 +15,7 @@ export const fetchAllJobs = async (options) => {
   let accumulatedData = []; // Store all data here
   let page = 1; // Start from page 1
   const pageSize = 50; // Define the page size (maximum length of data array)
-  let stop = 1; // No more than 1 pages (50 jobs)
+  let stop = 0; // No more than 2 pages (100 jobs)
   let total = 0; // Will hold the total number of items returned
   try {
     do {
@@ -35,7 +35,14 @@ export const fetchAllJobs = async (options) => {
       // Set the total on the first API call
       if (page === 1) {
         total = result.total;
-        // stop = Math.floor(total / pageSize) + 1;
+        console.log(
+          "🚀 ~ fetchAllJobs ~ Math.floor(total / pageSize):",
+          Math.floor(total / pageSize)
+        );
+        stop =
+          Math.floor(total / pageSize) + 1 > 2
+            ? 2
+            : Math.floor(total / pageSize) + 1;
       }
 
       // Increment the page for the next request

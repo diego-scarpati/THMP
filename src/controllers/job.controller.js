@@ -1,8 +1,11 @@
 import * as jobServices from "../services/job.services.js";
+import * as jobDescriptionServices from "../services/jobDescription.services.js";
 import * as keywordServices from "../services/keyword.services.js";
 import * as linkedInApi from "../linkedin_api/index.js";
 import { saveToFile } from "../utils/pythonFunctions.cjs";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
+import fetchJob from "../utils/fetchingJob.cjs";
+import shouldAcceptJob from "../utils/approveByFormula.cjs";
 
 const modelOptions = [
   // Model parameters
@@ -247,15 +250,53 @@ export const searchAndCreateJobs = async (req, res) => {
     }
     let jobsCreated = 0;
     let jobsThatAlreadyExist = 0;
+    let jobDescriptionsCreated = 0;
+
     for (const job of jobs.data) {
-      const returnedJob = await jobServices.createJob(job, keywords);
-      returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
-    }
-    return res
-      .status(201)
-      .send(
-        `Created ${jobsCreated} jobs out of ${jobs.filteredJobs} that were filtered out of ${jobs.total} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB.`
+      let approvedByFormula = "pending";
+      let description = "";
+      try {
+        description = await fetchJob(job.url);
+        if (description !== "") {
+          console.log("🚀 ~ Description exists");
+          approvedByFormula = (await shouldAcceptJob({ description }, 4))
+            ? "yes"
+            : "no";
+          console.log(
+            "🚀 ~ searchAndCreateJobs ~ approvedByFormula:",
+            approvedByFormula
+          );
+        }
+      } catch (error) {
+        console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
+      }
+      const returnedJob = await jobServices.createJob(
+        job,
+        approvedByFormula,
+        keywords
       );
+      returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+      if (description !== "" && returnedJob.createdJob) {
+        try {
+          const returnedJobDescription =
+            await jobDescriptionServices.createJobDescription({
+              id: job.id,
+              description,
+              state: "LISTED",
+            });
+          if (returnedJobDescription) {
+            jobDescriptionsCreated++;
+          }
+        } catch (error) {
+          console.log("🚀 ~ searchAndCreateJobs ~ error:", error);
+        }
+      }
+    }
+    return res.status(201).send(
+      `
+        Created ${jobsCreated} jobs out of ${jobs.filteredJobs} that were filtered out of ${jobs.total} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB. Job descriptions created: ${jobDescriptionsCreated}. 
+      `
+    );
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
     return res.status(500).send("An error occurred while creating jobs.");
@@ -298,9 +339,9 @@ export const updateApprovedByDate = async (req, res) => {
 export const approveByGPT = async (req, res) => {
   const whereClause = {
     where: {
-      approvedByGPT: "pending",
       approvedByFormula: "yes",
-      easyApply: "yes",
+      easyApply: "pending",
+      approvedByGPT: "pending",
     },
     include: [
       {
@@ -311,6 +352,7 @@ export const approveByGPT = async (req, res) => {
     ],
     order: [["createdAt", "ASC"]],
     limit: 300,
+    // limit: 1,
     offset: 0,
   };
   const jobs = await jobServices.getAllJobs(whereClause);
@@ -395,6 +437,9 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
     let jobsCreated = 0;
     let jobsThatAlreadyExist = 0;
     let searchedJobs = 0;
+    let jobsLoopedInOtherKeywords = 0;
+    let jobDescriptionsCreated = 0;
+    const idSet = new Set();
 
     // Loop through each keyword
     for (const keyword of keywords) {
@@ -419,16 +464,59 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
 
       // Loop through each job and create it
       for (const job of jobs.data) {
-        const returnedJob = await jobServices.createJob(job, keyword.keyword);
+        // Check if job has already been looped in other keyword
+        if (idSet.has(job.id)) {
+          jobsLoopedInOtherKeywords++;
+          continue;
+        }
+
+        // Add job id to the set
+        idSet.add(job.id);
+
+        let approvedByFormula = "pending";
+        let description = "";
+
+        try {
+          description = await fetchJob(job.url);
+          if (description !== "") {
+            approvedByFormula = (await shouldAcceptJob(description))
+              ? "yes"
+              : "no";
+          }
+        } catch (error) {
+          console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
+        }
+
+        // Check if the job already exists in the DB
+        const returnedJob = await jobServices.createJob(
+          job,
+          approvedByFormula,
+          keyword.keyword
+        );
         returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+        if (description !== "" && returnedJob.createdJob) {
+          try {
+            const returnedJobDescription =
+              await jobDescriptionServices.createJobDescription({
+                id: job.id,
+                description,
+                state: "LISTED",
+              });
+            if (returnedJobDescription) {
+              jobDescriptionsCreated++;
+            }
+          } catch (error) {
+            console.log("🚀 ~ searchAndCreateJobs ~ error:", error);
+          }
+        }
       }
     }
 
-    return res
-      .status(201)
-      .send(
-        `Created ${jobsCreated} jobs out of ${jobsCreated + jobsThatAlreadyExist} that were filtered out of ${searchedJobs} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB.`
-      );
+    return res.status(201).send(
+      `
+        Created ${jobsCreated} jobs out of ${jobsCreated + jobsThatAlreadyExist} that were filtered out of ${searchedJobs} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB. Jobs looped in other keywords: ${jobsLoopedInOtherKeywords}. Job descriptions created: ${jobDescriptionsCreated}.
+      `
+    );
   } catch (error) {
     console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
     return res.status(500).send("An error occurred while creating jobs.");

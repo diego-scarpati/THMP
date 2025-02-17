@@ -24,28 +24,22 @@ const JobDescription = db.define("JobDescription", {
   },
   companyApplyUrl: {
     type: DataTypes.TEXT,
-    // allowNull: false,
   },
   easyApplyUrl: {
     type: DataTypes.TEXT,
-    // allowNull: false,
   },
   workRemoteAllowed: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
-    // allowNull: false,
   },
   workPlace: {
     type: DataTypes.STRING,
-    // allowNull: false,
   },
   formattedExperienceLevel: {
     type: DataTypes.STRING,
-    // allowNull: false,
   },
   skills: {
     type: DataTypes.TEXT,
-    // allowNull: false,
   },
 });
 

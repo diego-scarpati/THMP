@@ -133,9 +133,9 @@ export const getAllRejected = async () => {
   }
 };
 
-export const createJob = async (job, keyword) => {
+export const createJob = async (job, approvedByFormula, keyword) => {
   try {
-    const [newKeyword, createdKeyword] = await Keyword.findOrCreate({
+    const [newKeyword] = await Keyword.findOrCreate({
       where: {
         keyword,
       },
@@ -156,6 +156,7 @@ export const createJob = async (job, keyword) => {
         type: job.type || null,
         postDate: job.postAt || null,
         benefits: job.benefits || null,
+        approvedByFormula: approvedByFormula || "pending",
       },
     });
     await newJob.addKeyword(newKeyword);
@@ -215,10 +216,14 @@ export const updateApprovedByDate = async (jobId) => {
 export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    // console.log(
-    //   "🚀 ~ approveByGPT ~ job:",
-    //   job.dataValues.JobDescription.dataValues.description
-    // );
+    // console.log("🚀 ~ approveByGPT ~ job:", job)
+    const jobDescription =
+      job.dataValues.JobDescription?.dataValues?.description || null;
+    // console.log("🚀 ~ approveByGPT ~ jobDescription:", jobDescription)
+    if (!jobDescription) {
+      console.log("🚀 ~ approveByGPT ~ job:", job.id);
+      continue;
+    }
     const approved = await approveByAssistantGPT({
       description: job.dataValues.JobDescription.dataValues.description,
       // skills: job.dataValues.JobDescription.dataValues.skills,

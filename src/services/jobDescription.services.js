@@ -24,7 +24,11 @@ export const getJobDescriptionById = async (id) => {
 
 export const createJobDescription = async (jobDescription) => {
   try {
-    const newJobDescription = await JobDescription.create(...jobDescription);
+    const newJobDescription = await JobDescription.create({
+      id: jobDescription.id,
+      state: jobDescription.state,
+      description: jobDescription.description,
+    });
     return newJobDescription;
   } catch (error) {
     console.log("🚀 ~ createJobDescription ~ error:", error);
