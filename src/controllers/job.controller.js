@@ -108,30 +108,26 @@ export const getAllJobs = async (req, res) => {
           required: false,
         });
         break;
-      default:
-        if (key.approvedByGPT) {
-          // Check if the is strictly equal to "yes" or "no" or "pending"
-          if (["yes", "no", "pending"].includes(key.approveByGPT)) {
-            whereClause.where.approveByGPT = key.approveByGPT;
-          }
-        }
-        if (key.approvedByFormula) {
-          // Check if the is strictly equal to "yes" or "no" or "pending"
-          if (["yes", "no", "pending"].includes(key.approveByFormula)) {
-            whereClause.where.approveByFormula = key.approveByFormula;
-          }
-        }
-        if (key.easyApply) {
-          // Check if the is strictly equal to "yes" or "no" or "pending"
-          if (["yes", "no", "pending"].includes(key.easyApply)) {
-            whereClause.where.easyApply = key.easyApply;
-          }
-        } else {
-          if (key === "limit" || key === "page") {
-            break;
-          }
+      case "approvedByGPT":
+        if (["yes", "no", "pending"].includes(options[key])) {
           whereClause.where[key] = options[key];
         }
+        break;
+      case "approvedByFormula":
+        if (["yes", "no", "pending"].includes(options[key])) {
+          whereClause.where[key] = options[key];
+        }
+        break;
+      case "easyApply":
+        if (["yes", "no", "pending"].includes(options[key])) {
+          whereClause.where[key] = options[key];
+        }
+        break;
+      default:
+        if (key === "limit" || key === "page") {
+          break;
+        }
+        whereClause.where[key] = options[key];
     }
   }
 
