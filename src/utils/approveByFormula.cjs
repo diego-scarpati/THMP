@@ -118,6 +118,15 @@ function checkExperience(jobDescription, candidateExperience) {
     return candidateExperience >= minExp;
   }
 
+  // "X+ experience" or "X+ years of experience"
+  match = description.match(
+    /\b(\d+)\s*\+\s*(?:years?|yrs?)?\s*(?:of\s+)?experience\b/
+  );
+  if (match) {
+    const minExp = parseInt(match[1], 10);
+    return candidateExperience >= minExp;
+  }
+
   // 5. "More than X years" or "Over X years" → candidate must have strictly more than X years.
   match = description.match(
     /\b(?:more\s+than|over)\s+(\d+)\s*(?:years?|yrs?)\b/
@@ -150,6 +159,13 @@ function checkExperience(jobDescription, candidateExperience) {
   match = description.match(
     /\bexperience\b\s*(?:required[:\-]?\s*)?(\d+)\s*(?:\+?\s*(?:years?|yrs?))\b/
   );
+  if (match) {
+    const minExp = parseInt(match[1], 10);
+    return candidateExperience >= minExp;
+  }
+
+  // "X years of experience" or "X years experience"
+  match = description.match(/\b(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?experience\b/);
   if (match) {
     const minExp = parseInt(match[1], 10);
     return candidateExperience >= minExp;
