@@ -72,16 +72,13 @@ export const fetchAllJobs = async (options) => {
 
 export const filterJobs = async (options) => {
   const jobs = await fetchAllJobs(options);
-  if (jobs.total === 0) {
+  if (jobs.success && jobs?.total === 0) {
     console.log("🚀 ~ filterJobs ~ jobs:", "No jobs found");
     return null;
   }
 
   // For the searchAndCreate route, we will filter the jobs to exclude those that have the word "intern" in the title, those that have non-Latin characters, and those that do not have the word "engineer" in the title.
   const filteredJobs = jobs.accumulatedData.filter((job) => {
-    if (job.company.name === "micro1") {
-      console.log("🚀 ~ job:", job);
-    }
     return (
       !shouldExcludeIftitle.test(job.title) &&
       !nonLatinPattern.test(job.title) &&
@@ -90,7 +87,8 @@ export const filterJobs = async (options) => {
       !excludeCPlusPlus.test(job.title) &&
       !excludeDotNet.test(job.title) &&
       shouldHaveInTitle.test(job.title) &&
-      job.company.name !== "micro1"
+      job.company.name !== "micro1" &&
+      job.company.name !== "Peoplebank"
     );
   });
   console.log("🚀 ~ filteredJobs ~ filteredJobs:", filteredJobs.length);

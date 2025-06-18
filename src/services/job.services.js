@@ -217,6 +217,28 @@ export const approveByGPT = async (jobs) => {
   let jobsApproved = 0;
   for (const job of jobs) {
     // console.log("🚀 ~ approveByGPT ~ job:", job)
+    const today = new Date();
+    const postDate = new Date(job.dataValues.postDate);
+    const shouldRejectByPostDate = today - postDate > 10 * 24 * 60 * 60 * 1000;
+    if (shouldRejectByPostDate) {
+      console.log(
+        "🚀 ~ approveByGPT ~ shouldRejectByPostDate:",
+        shouldRejectByPostDate
+      );
+      try {
+        await Job.update(
+          { approvedByGPT: "no" },
+          {
+            where: {
+              id: job.id,
+            },
+          }
+        );
+      } catch (error) {
+        console.log("🚀 ~ updateJob ~ error:", error);
+      }
+      continue;
+    }
     const jobDescription =
       job.dataValues.JobDescription?.dataValues?.description || null;
     // console.log("🚀 ~ approveByGPT ~ jobDescription:", jobDescription)
@@ -330,4 +352,19 @@ export const filterByJobTitle = async (jobs) => {
     if (approved) jobsApproved++;
   }
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
+};
+
+// Add keyword to job instance getting job with job id
+export const addKeywordToJob = async (jobId, keyword) => {
+  const job = await Job.findByPk(jobId);
+  const [newKeyword] = await Keyword.findOrCreate({
+    where: {
+      keyword,
+    },
+    defaults: {
+      keyword,
+    },
+  });
+  await job.addKeyword(newKeyword);
+  return job;
 };

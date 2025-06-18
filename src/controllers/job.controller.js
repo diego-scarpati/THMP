@@ -40,6 +40,7 @@ const modelOptions = [
 export const getAllJobs = async (req, res) => {
   const options = { ...req.query };
 
+  console.log("🚀 ~ getAllJobs ~ options:", options);
   // Options should only contain the keys that are in the modelOptions array
   for (const key in options) {
     if (!modelOptions.includes(key)) {
@@ -53,6 +54,10 @@ export const getAllJobs = async (req, res) => {
     delete options.page;
   }
 
+  console.log(
+    "🚀 ~ getAllJobs ~ options.postDate === 'desc':",
+    options.postDate === "desc"
+  );
   // Should separate the where clause from the include, limit, page, offset and order clauses
   const whereClause = {
     where: {},
@@ -77,6 +82,8 @@ export const getAllJobs = async (req, res) => {
     // Switch case for the options to separate them into where, include, limit, page, offset and order
     switch (key) {
       case "created":
+        break;
+      case "postDate":
         break;
       case "jobDescriptions":
         whereClause.include.push({
@@ -253,8 +260,14 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobDescriptionsCreated = 0;
 
     for (const job of jobs.data) {
+      const existingJob = await jobServices.getJobById(job.id);
+      if (existingJob) {
+        jobsThatAlreadyExist++;
+        continue;
+      }
       let approvedByFormula = "pending";
       let description = "";
+
       try {
         description = await fetchJob(job.url);
         if (description !== "") {
@@ -350,9 +363,9 @@ export const approveByGPT = async (req, res) => {
         required: false,
       },
     ],
-    order: [["createdAt", "ASC"]],
+    order: [["postDate", "DESC"]],
     limit: 300,
-    // limit: 1,
+    // limit: 10,
     offset: 0,
   };
   const jobs = await jobServices.getAllJobs(whereClause);
@@ -467,14 +480,21 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         // Check if job has already been looped in other keyword
         if (idSet.has(job.id)) {
           jobsLoopedInOtherKeywords++;
+          // Shoudl add the keyword to the job
+          jobServices.addKeywordToJob(job.id, keyword.keyword);
           continue;
         }
 
         // Add job id to the set
         idSet.add(job.id);
-
         let approvedByFormula = "pending";
         let description = "";
+
+        const jobExists = await jobServices.getJobById(job.id);
+        if (jobExists) {
+          jobsThatAlreadyExist++;
+          continue;
+        }
 
         try {
           description = await fetchJob(job.url);
