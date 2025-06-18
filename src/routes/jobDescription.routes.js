@@ -69,7 +69,7 @@ jobDescriptionRoutes.post(
 
 /**
  * @swagger
- * /api/jobDecriptions/loopAndCreate:
+ * /api/jobDescriptions/loopAndCreate:
  *   post:
  *     tags:
  *       - Job Description
