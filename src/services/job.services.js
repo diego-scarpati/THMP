@@ -174,9 +174,12 @@ export const bulkCreateJobs = async (jobs, keyword) => {
       },
     });
     const newJobs = await Job.bulkCreate(jobs, { ignoreDuplicates: true });
-    await newJobs.forEach(async (job) => {
-      await job.addKeyword(keywordInstance);
-    });
+    // Ensure all keyword associations are created before returning
+    await Promise.all(
+      newJobs.map(async (job) => {
+        await job.addKeyword(keywordInstance);
+      })
+    );
     return newJobs;
   } catch (error) {
     console.log("🚀 ~ bulkCreateJobs ~ error:", error);
