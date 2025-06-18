@@ -20,30 +20,30 @@ const titlesToTest = [
 
 describe("Regex tests", () => {
   test("shouldExcludeIftitle", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title) => {
       // console.log(
       //   `🚀 ${title}: `,
       //   !shouldExcludeIftitle.test(title)
       // );
       return !shouldExcludeIftitle.test(title);
     });
-    expect(fileteredTitles).toEqual([
+    expect(filteredTitles).toEqual([
       "C++ Developer",
       "C# Developer",
       "Full Stack Developer",
     ]);
-    expect(fileteredTitles.length).toEqual(3);
+    expect(filteredTitles.length).toEqual(3);
   });
 
   test("shouldHaveInTitle", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title) => {
       // console.log(
       //   `🚀 ${title}: `,
       //   shouldHaveInTitle.test(title)
       // );
       return shouldHaveInTitle.test(title);
     });
-    expect(fileteredTitles).toEqual([
+    expect(filteredTitles).toEqual([
       "Mobile Engineer 2 (Android)",
       "365 CRM Developer",
       "Azure Application Developer",
@@ -52,33 +52,33 @@ describe("Regex tests", () => {
       "Full Stack Developer",
       "Senior Full Stack Developer",
     ]);
-    expect(fileteredTitles.length).toEqual(titlesToTest.length);
+    expect(filteredTitles.length).toEqual(titlesToTest.length);
   });
 
   // test("excludeCs", () => {
-  //   const fileteredTitles = titlesToTest.filter((title) => {
+  //   const filteredTitles = titlesToTest.filter((title) => {
   //     console.log(
   //       `🚀 ${title}: `,
   //       !excludeCs.test(title)
   //     );
   //     return !excludeCs.test(title);
   //   });
-  //   expect(fileteredTitles).toEqual([
+  //   expect(filteredTitles).toEqual([
   //     "Mobile Engineer 2 (Android)",
   //     "365 CRM Developer",
   //     "Azure Application Developer",
   //     "Full Stack Developer",
   //     "Senior Full Stack Developer",
   //   ]);
-  //   expect(fileteredTitles.length).toEqual(5);
+  //   expect(filteredTitles.length).toEqual(5);
   // });
 
   test("excludeCSharp", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
-      console.log(`🚀 ${title}: `, !excludeCSharp.test(title));
+    const filteredTitles = titlesToTest.filter((title) => {
+      // console.log(`🚀 ${title}: `, !excludeCSharp.test(title));
       return !excludeCSharp.test(title);
     });
-    expect(fileteredTitles).toEqual([
+    expect(filteredTitles).toEqual([
       "Mobile Engineer 2 (Android)",
       "365 CRM Developer",
       "Azure Application Developer",
@@ -86,15 +86,15 @@ describe("Regex tests", () => {
       "Full Stack Developer",
       "Senior Full Stack Developer",
     ]);
-    expect(fileteredTitles.length).toEqual(6);
+    expect(filteredTitles.length).toEqual(6);
   });
 
   test("excludeCPlusPlus", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title) => {
       // console.log(`🚀 ${title}: `, !excludeCPlusPlus.test(title));
       return !excludeCPlusPlus.test(title);
     });
-    expect(fileteredTitles).toEqual([
+    expect(filteredTitles).toEqual([
       "Mobile Engineer 2 (Android)",
       "365 CRM Developer",
       "Azure Application Developer",
@@ -102,15 +102,15 @@ describe("Regex tests", () => {
       "Full Stack Developer",
       "Senior Full Stack Developer",
     ]);
-    expect(fileteredTitles.length).toEqual(6);
+    expect(filteredTitles.length).toEqual(6);
   });
 
   test("excludeDotNet", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title) => {
       // console.log(`🚀 ${title}: `, !excludeDotNet.test(title));
       return !excludeDotNet.test(title);
     });
-    expect(fileteredTitles).toEqual([
+    expect(filteredTitles).toEqual([
       "Mobile Engineer 2 (Android)",
       "365 CRM Developer",
       "Azure Application Developer",
@@ -119,11 +119,11 @@ describe("Regex tests", () => {
       "Full Stack Developer",
       "Senior Full Stack Developer",
     ]);
-    expect(fileteredTitles.length).toEqual(7);
+    expect(filteredTitles.length).toEqual(7);
   });
 
   test("filterFunction", () => {
-    const fileteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title) => {
       // console.log(`🚀 ${title}: `, !excludeDotNet.test(title));
       return (
         !shouldExcludeIftitle.test(title) &&
@@ -135,7 +135,7 @@ describe("Regex tests", () => {
         shouldHaveInTitle.test(title)
       );
     });
-    expect(fileteredTitles).toEqual(["Full Stack Developer"]);
-    expect(fileteredTitles.length).toEqual(1);
+    expect(filteredTitles).toEqual(["Full Stack Developer"]);
+    expect(filteredTitles.length).toEqual(1);
   });
 });
