@@ -1,4 +1,5 @@
 import * as coverLetterService from "../services/coverLetter.services";
+import { CoverLetterAttributes } from "../utils/types";
 
 export const getAllCoverLetters = async (req, res) => {
   try {
@@ -20,7 +21,7 @@ export const getCoverLetterById = async (req, res) => {
 };
 
 export const createCoverLetter = async (req, res) => {
-  const { coverLetter } = req.body;
+  const { coverLetter } = req.body as { coverLetter: CoverLetterAttributes };
   try {
     const newCoverLetter = await coverLetterService.createCoverLetter(coverLetter);
     return res.status(201).json(newCoverLetter);

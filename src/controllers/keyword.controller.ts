@@ -1,4 +1,5 @@
 import * as keywordService from "../services/keyword.services";
+import { KeywordAttributes } from "../utils/types";
 
 export const getAllKeywords = async (req, res) => {
   try {
@@ -20,7 +21,7 @@ export const getKeywordById = async (req, res) => {
 };
 
 export const createKeyword = async (req, res) => {
-  const { keyword } = req.body;
+  const { keyword } = req.body as { keyword: KeywordAttributes };
   try {
     const newKeyword = await keywordService.createKeyword(keyword);
     return res.status(201).json(newKeyword);

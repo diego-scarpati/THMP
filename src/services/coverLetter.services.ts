@@ -1,6 +1,7 @@
 import { CoverLetter } from "../models/index";
+import { CoverLetterAttributes } from "../utils/types";
 
-export const getAllCoverLetters = async () => {
+export const getAllCoverLetters = async (): Promise<CoverLetterAttributes[]> => {
   try {
     const coverLetters = await CoverLetter.findAll();
     return coverLetters;
@@ -9,7 +10,9 @@ export const getAllCoverLetters = async () => {
   }
 };
 
-export const getCoverLetterById = async (id) => {
+export const getCoverLetterById = async (
+  id: string
+): Promise<CoverLetterAttributes | null> => {
   try {
     const coverLetter = await CoverLetter.findByPk(id);
     return coverLetter;
@@ -18,7 +21,9 @@ export const getCoverLetterById = async (id) => {
   }
 };
 
-export const createCoverLetter = async (coverLetter) => {
+export const createCoverLetter = async (
+  coverLetter: CoverLetterAttributes
+): Promise<CoverLetterAttributes | null> => {
   try {
     const newCoverLetter = await CoverLetter.create(coverLetter);
     return newCoverLetter;

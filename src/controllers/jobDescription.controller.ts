@@ -1,5 +1,6 @@
 import * as jobDescriptionServices from "../services/jobDescription.services";
 import * as jobServices from "../services/job.services";
+import { JobDescriptionAttributes } from "../utils/types";
 
 export const getAllJobDescriptions = async (req, res) => {
   try {
@@ -21,7 +22,7 @@ export const getJobDescriptionById = async (req, res) => {
 };
 
 export const createJobDescription = async (req, res) => {
-  const { jobDescription } = req.body;
+  const { jobDescription } = req.body as { jobDescription: JobDescriptionAttributes };
   try {
     const newJobDescription = await jobDescriptionServices.createJobDescription(jobDescription);
     return res.status(201).json(newJobDescription);

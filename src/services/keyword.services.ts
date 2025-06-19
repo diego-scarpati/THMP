@@ -1,6 +1,7 @@
 import { Keyword } from "../models/index";
+import { KeywordAttributes } from "../utils/types";
 
-export const getAllKeywords = async () => {
+export const getAllKeywords = async (): Promise<KeywordAttributes[]> => {
   try {
     const keywords = await Keyword.findAll();
     return keywords;
@@ -9,7 +10,9 @@ export const getAllKeywords = async () => {
   }
 };
 
-export const getKeywordById = async (id) => {
+export const getKeywordById = async (
+  id: number
+): Promise<KeywordAttributes | null> => {
   try {
     const keyword = await Keyword.findByPk(id);
     return keyword;
@@ -18,7 +21,9 @@ export const getKeywordById = async (id) => {
   }
 };
 
-export const createKeyword = async (keyword) => {
+export const createKeyword = async (
+  keyword: KeywordAttributes
+): Promise<KeywordAttributes | null> => {
   try {
     const newKeyword = await Keyword.create(keyword);
     return newKeyword;

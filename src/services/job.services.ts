@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
+import { JobAttributes } from "../utils/types";
 // import {
 //   acceptByFormula,
 //   gptApproval,
@@ -18,7 +19,9 @@ import {
 import { approveByAssistantGPT } from "../utils/assistants";
 import shouldAcceptJob from "../utils/approveByFormula";
 
-export const getAllJobs = async (whereClause) => {
+export const getAllJobs = async (
+  whereClause: any
+): Promise<{ total: number; data: JobAttributes[] } | undefined> => {
   const { where, include, limit, offset, order } = whereClause;
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
   // console.log("🚀 ~ getAllJobs ~ where:", where)
@@ -44,7 +47,9 @@ export const getAllJobs = async (whereClause) => {
   }
 };
 
-export const getJobById = async (id) => {
+export const getJobById = async (
+  id: string
+): Promise<JobAttributes | null> => {
   try {
     const job = await Job.findByPk(id);
     return job;
@@ -53,7 +58,9 @@ export const getJobById = async (id) => {
   }
 };
 
-export const getJobsByCompanyName = async (companyName) => {
+export const getJobsByCompanyName = async (
+  companyName: string
+): Promise<JobAttributes[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -75,7 +82,10 @@ export const getJobsByCompanyName = async (companyName) => {
   }
 };
 
-export const getAllByAccepetance = async (formulaAcceptance, gptAcceptance) => {
+export const getAllByAccepetance = async (
+  formulaAcceptance: string | undefined,
+  gptAcceptance: string | undefined
+): Promise<JobAttributes[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -89,7 +99,7 @@ export const getAllByAccepetance = async (formulaAcceptance, gptAcceptance) => {
   }
 };
 
-export const getAllByCoverLetter = async () => {
+export const getAllByCoverLetter = async (): Promise<JobAttributes[]> => {
   try {
     const jobs = await Job.findAll({
       include: {
@@ -107,7 +117,7 @@ export const getAllByCoverLetter = async () => {
   }
 };
 
-export const getAllApplied = async () => {
+export const getAllApplied = async (): Promise<JobAttributes[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -120,7 +130,7 @@ export const getAllApplied = async () => {
   }
 };
 
-export const getAllRejected = async () => {
+export const getAllRejected = async (): Promise<JobAttributes[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -133,7 +143,11 @@ export const getAllRejected = async () => {
   }
 };
 
-export const createJob = async (job, approvedByFormula, keyword) => {
+export const createJob = async (
+  job: JobAttributes,
+  approvedByFormula: string,
+  keyword: string
+): Promise<{ newJob: JobAttributes; createdJob: boolean } | undefined> => {
   try {
     const [newKeyword] = await Keyword.findOrCreate({
       where: {
@@ -166,7 +180,10 @@ export const createJob = async (job, approvedByFormula, keyword) => {
   }
 };
 
-export const bulkCreateJobs = async (jobs, keyword) => {
+export const bulkCreateJobs = async (
+  jobs: JobAttributes[],
+  keyword: string
+): Promise<JobAttributes[] | undefined> => {
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
@@ -184,7 +201,10 @@ export const bulkCreateJobs = async (jobs, keyword) => {
 };
 
 // Used as a service in jobDescription.services.loopAndCreateJobDescription
-export const updateJob = async (id, jobInfo) => {
+export const updateJob = async (
+  id: string,
+  jobInfo: Partial<JobAttributes>
+): Promise<[number]> => {
   try {
     const updatedJob = await Job.update(jobInfo, {
       where: {
@@ -197,7 +217,9 @@ export const updateJob = async (id, jobInfo) => {
   }
 };
 
-export const updateApprovedByDate = async (jobId) => {
+export const updateApprovedByDate = async (
+  jobId: string
+): Promise<[number]> => {
   try {
     const updatedJob = await Job.update(
       { easyApply: "yes" },
@@ -213,7 +235,7 @@ export const updateApprovedByDate = async (jobId) => {
   }
 };
 
-export const approveByGPT = async (jobs) => {
+export const approveByGPT = async (jobs: JobAttributes[]): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
     // console.log("🚀 ~ approveByGPT ~ job:", job)
@@ -264,7 +286,9 @@ export const approveByGPT = async (jobs) => {
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
 
-export const approveByFormula = async (jobs) => {
+export const approveByFormula = async (
+  jobs: JobAttributes[]
+): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
     const today = new Date();
@@ -312,7 +336,9 @@ export const approveByFormula = async (jobs) => {
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
 
-export const filterByJobTitle = async (jobs) => {
+export const filterByJobTitle = async (
+  jobs: JobAttributes[]
+): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
     if (job.approvedByFormula === "yes") {
@@ -348,7 +374,10 @@ export const filterByJobTitle = async (jobs) => {
 };
 
 // Add keyword to job instance getting job with job id
-export const addKeywordToJob = async (jobId, keyword) => {
+export const addKeywordToJob = async (
+  jobId: string,
+  keyword: string
+): Promise<JobAttributes | null> => {
   const job = await Job.findByPk(jobId);
   const [newKeyword] = await Keyword.findOrCreate({
     where: {
