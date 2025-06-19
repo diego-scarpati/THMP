@@ -1,8 +1,8 @@
 import express from "express";
-import jobRoutes from "./job.routes.ts";
-import jobDescriptionRoutes from "./jobDescription.routes.ts";
-import keywordRoutes from "./keyword.routes.ts";
-import coverLetterRoutes from "./coverLetter.routes.ts";
+import jobRoutes from "./job.routes";
+import jobDescriptionRoutes from "./jobDescription.routes";
+import keywordRoutes from "./keyword.routes";
+import coverLetterRoutes from "./coverLetter.routes";
 
 const router = express.Router();
 

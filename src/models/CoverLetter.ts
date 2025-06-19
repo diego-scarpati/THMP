@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
-import db from "../db/connection.ts";
-import Job from "./Job.ts";
+import db from "../db/connection";
+import Job from "./Job";
 
 const CoverLetter = db.define("CoverLetter", {
   id: {

@@ -1,7 +1,7 @@
-import Job from "./Job.ts";
-import JobDescription from "./JobDescription.ts";
-import CoverLetter from "./CoverLetter.ts";
-import Keyword from "./Keyword.ts";
+import Job from "./Job";
+import JobDescription from "./JobDescription";
+import CoverLetter from "./CoverLetter";
+import Keyword from "./Keyword";
 
 Job.hasOne(JobDescription, { foreignKey: "id" });
 JobDescription.belongsTo(Job, { foreignKey: "id" });

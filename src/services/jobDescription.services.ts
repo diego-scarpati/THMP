@@ -1,8 +1,8 @@
-import { fetchJobDetails } from "../linkedin_api/index.ts";
-import { JobDescription } from "../models/index.ts";
-import * as jobServices from "../services/job.services.ts";
+import { fetchJobDetails } from "../linkedin_api/index";
+import { JobDescription } from "../models/index";
+import * as jobServices from "../services/job.services";
 // import { acceptByFormula } from "../utils/pythonFunctions.cjs";
-import shouldAcceptJob from "../utils/approveByFormula.ts";
+import shouldAcceptJob from "../utils/approveByFormula";
 
 export const getAllJobDescriptions = async () => {
   try {

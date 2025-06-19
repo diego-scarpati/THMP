@@ -1,11 +1,11 @@
-import * as jobServices from "../services/job.services.ts";
-import * as jobDescriptionServices from "../services/jobDescription.services.ts";
-import * as keywordServices from "../services/keyword.services.ts";
-import * as linkedInApi from "../linkedin_api/index.ts";
-import { saveToFile } from "../utils/pythonFunctions.ts";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.ts";
-import fetchJob from "../utils/fetchingJob.ts";
-import shouldAcceptJob from "../utils/approveByFormula.ts";
+import * as jobServices from "../services/job.services";
+import * as jobDescriptionServices from "../services/jobDescription.services";
+import * as keywordServices from "../services/keyword.services";
+import * as linkedInApi from "../linkedin_api/index";
+import { saveToFile } from "../utils/pythonFunctions";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
+import fetchJob from "../utils/fetchingJob";
+import shouldAcceptJob from "../utils/approveByFormula";
 
 const modelOptions = [
   // Model parameters

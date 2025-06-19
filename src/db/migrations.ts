@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import db from "./connection.ts";
+import db from "./connection";
 
 const updateColumnDataType = async () => {
   const queryInterface = db.getQueryInterface();

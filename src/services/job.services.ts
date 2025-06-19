@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.ts";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
 // import {
 //   acceptByFormula,
 //   gptApproval,
@@ -14,9 +14,9 @@ import {
   excludeCs,
   excludeCSharp,
   excludeCPlusPlus,
-} from "../utils/regex.ts";
-import { approveByAssistantGPT } from "../utils/assistants.ts";
-import shouldAcceptJob from "../utils/approveByFormula.ts";
+} from "../utils/regex";
+import { approveByAssistantGPT } from "../utils/assistants";
+import shouldAcceptJob from "../utils/approveByFormula";
 
 export const getAllJobs = async (whereClause) => {
   const { where, include, limit, offset, order } = whereClause;

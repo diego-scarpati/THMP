@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
-import db from "../db/connection.ts";
+import db from "../db/connection";
 
 const Keyword = db.define("Keyword", {
   id: {

@@ -1,9 +1,9 @@
 import express from "express";
 import morgan from "morgan";
-import router from "./routes/index.routes.ts";
+import router from "./routes/index.routes";
 import cors from "cors";
-import db from "./db/connection.ts";
-import apiDocsRouter from "./routes/apiDocs.routes.ts";
+import db from "./db/connection";
+import apiDocsRouter from "./routes/apiDocs.routes";
 
 const app = express();
 const port = 8888;
@@ -28,7 +28,7 @@ app.use("/api-docs", apiDocsRouter);
     app.listen(port, () => {
       console.log(`Listening on Port: ${port}`);
     });
-  } catch (error) {
-    console.error("Unable to connect:", error.message);
+  } catch (error: unknown) {
+    console.error("Unable to connect:", error instanceof Error ? error.message : String(error));
   }
 })();

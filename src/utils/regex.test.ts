@@ -6,7 +6,7 @@ import {
   excludeCPlusPlus,
   excludeDotNet,
   nonLatinPattern,
-} from "./regex.ts";
+} from "./regex";
 
 const titlesToTest: string[] = [
   "Mobile Engineer 2 (Android)",
