@@ -1,4 +1,7 @@
-const candidateSkillsJson = require("../assets/diego-scarpati-skills.json");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const candidateSkillsJson = require("../assets/diego-scarpati-skills.json") as {
+  skills: string[];
+};
 
 const rejectingSkills = [
   ".Net",
@@ -64,7 +67,7 @@ const candidateSkills = candidateSkillsJson.skills;
  * @param {number} candidateExperience - The candidate's experience in years.
  * @returns {boolean} - True if the candidate meets the requirement (or no requirement is specified), false otherwise.
  */
-function checkExperience(jobDescription, candidateExperience) {
+function checkExperience(jobDescription: string, candidateExperience: number): boolean {
   // Normalize the description to lower-case for case-insensitive matching.
   const description = jobDescription.toLowerCase();
   let match;
@@ -181,7 +184,7 @@ function checkExperience(jobDescription, candidateExperience) {
  * @param {string[]} jobSkills - The skills required for the job.
  * @returns {boolean} - True if the candidate meets the criteria, otherwise false.
  */
-function checkSkills(jobSkills) {
+function checkSkills(jobSkills: string): boolean {
   console.log("🚀 ~ checkSkills ~ jobSkills:", jobSkills);
   // If jobSkills is null, undefined, or an empty array, immediately return false.
   if (!jobSkills || jobSkills.split(" ,").length === 0) {
@@ -218,7 +221,12 @@ function checkSkills(jobSkills) {
   }
 }
 
-const shouldAcceptJob = (jobData, candidateYearsExperience) => {
+interface JobData {
+  description?: string;
+  skills?: string;
+}
+
+const shouldAcceptJob = (jobData: JobData, candidateYearsExperience: number): boolean => {
   // Extract the job description
   const description = jobData.description || "";
 
@@ -254,4 +262,4 @@ const jobExample = {
 
 // console.log(shouldAcceptJob(jobExample, candidateSkills, rejectingSkills, 4));
 
-module.exports = shouldAcceptJob;
+export default shouldAcceptJob;

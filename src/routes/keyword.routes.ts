@@ -1,5 +1,5 @@
 import express from "express";
-import * as keywordController from "../controllers/keyword.controller.js";
+import * as keywordController from "../controllers/keyword.controller.ts";
 
 const keywordRoutes = express.Router();
 

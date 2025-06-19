@@ -1,4 +1,4 @@
-import * as coverLetterService from "../services/coverLetter.services.js";
+import * as coverLetterService from "../services/coverLetter.services.ts";
 
 export const getAllCoverLetters = async (req, res) => {
   try {
