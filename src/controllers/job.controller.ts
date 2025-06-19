@@ -1,11 +1,11 @@
-import * as jobServices from "../services/job.services.js";
-import * as jobDescriptionServices from "../services/jobDescription.services.js";
-import * as keywordServices from "../services/keyword.services.js";
-import * as linkedInApi from "../linkedin_api/index.js";
-import { saveToFile } from "../utils/pythonFunctions.cjs";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
-import fetchJob from "../utils/fetchingJob.cjs";
-import shouldAcceptJob from "../utils/approveByFormula.cjs";
+import * as jobServices from "../services/job.services.ts";
+import * as jobDescriptionServices from "../services/jobDescription.services.ts";
+import * as keywordServices from "../services/keyword.services.ts";
+import * as linkedInApi from "../linkedin_api/index.ts";
+import { saveToFile } from "../utils/pythonFunctions.ts";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.ts";
+import fetchJob from "../utils/fetchingJob.ts";
+import shouldAcceptJob from "../utils/approveByFormula.ts";
 
 const modelOptions = [
   // Model parameters
@@ -54,10 +54,7 @@ export const getAllJobs = async (req, res) => {
     delete options.page;
   }
 
-  console.log(
-    "🚀 ~ getAllJobs ~ options.postDate === 'desc':",
-    options.postDate === "desc"
-  );
+  console.log("🚀 ~ getAllJobs ~ options.postDate === 'desc':", options.postDate === "desc");
   // Should separate the where clause from the include, limit, page, offset and order clauses
   const whereClause = {
     where: {},
@@ -140,20 +137,17 @@ export const getAllJobs = async (req, res) => {
 
   try {
     const jobs = await jobServices.getAllJobs(whereClause);
-    if (jobs.total === 0) {
-      return res.status(404).send("No jobs found");
-    } else {
-      // console.log("🚀 ~ getAllJobs ~ jobs:", jobs)
-      const totalPages = Math.ceil(jobs.total / whereClause.limit);
 
-      return res.status(200).json({
-        total: jobs.total,
-        totalPages,
-        currentPage: page,
-        limit: whereClause.limit,
-        jobs: jobs.data,
-      });
-    }
+    // console.log("🚀 ~ getAllJobs ~ jobs:", jobs)
+    const totalPages = Math.ceil(jobs.total / whereClause.limit);
+
+    return res.status(200).json({
+      total: jobs.total,
+      totalPages,
+      currentPage: page,
+      limit: whereClause.limit,
+      jobs: jobs.data,
+    });
   } catch (error) {
     console.log("🚀 ~ getAllJobs ~ error:", error);
   }
@@ -200,10 +194,7 @@ export const getAllByAccepetance = async (req, res) => {
     return res.status(400).json({ message: "Missing query params" });
   }
   try {
-    const jobs = await jobServices.getAllByAccepetance(
-      formulaAcceptance,
-      gptAcceptance
-    );
+    const jobs = await jobServices.getAllByAccepetance(formulaAcceptance, gptAcceptance);
     return res.status(200).json(jobs);
   } catch (error) {
     console.log("🚀 ~ getAllByAccepetance ~ error:", error);
@@ -268,31 +259,21 @@ export const searchAndCreateJobs = async (req, res) => {
         description = await fetchJob(job.url);
         if (description !== "") {
           console.log("🚀 ~ Description exists");
-          approvedByFormula = (await shouldAcceptJob({ description }, 4))
-            ? "yes"
-            : "no";
-          console.log(
-            "🚀 ~ searchAndCreateJobs ~ approvedByFormula:",
-            approvedByFormula
-          );
+          approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
+          console.log("🚀 ~ searchAndCreateJobs ~ approvedByFormula:", approvedByFormula);
         }
       } catch (error) {
         console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
       }
-      const returnedJob = await jobServices.createJob(
-        job,
-        approvedByFormula,
-        keywords
-      );
+      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords);
       returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
       if (description !== "" && returnedJob.createdJob) {
         try {
-          const returnedJobDescription =
-            await jobDescriptionServices.createJobDescription({
-              id: job.id,
-              description,
-              state: "LISTED",
-            });
+          const returnedJobDescription = await jobDescriptionServices.createJobDescription({
+            id: job.id,
+            description,
+            state: "LISTED",
+          });
           if (returnedJobDescription) {
             jobDescriptionsCreated++;
           }
@@ -431,10 +412,7 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
   try {
     // Get all keywords
     const keywords = await keywordServices.getAllKeywords();
-    console.log(
-      "🚀 ~ searchAndCreateWithAllKeywords ~ keywords:",
-      keywords.length
-    );
+    console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keywords:", keywords.length);
 
     // If no keywords found, return 404
     if (!keywords || keywords.length === 0) {
@@ -452,10 +430,7 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
 
     // Loop through each keyword
     for (const keyword of keywords) {
-      console.log(
-        "🚀 ~ searchAndCreateWithAllKeywords ~ keyword:",
-        keyword.keyword
-      );
+      console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keyword:", keyword.keyword);
 
       // Searching and filtering jobs according to the specific keyword on the loop
       const jobs = await linkedInApi.filterJobs({
@@ -495,29 +470,22 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         try {
           description = await fetchJob(job.url);
           if (description !== "") {
-            approvedByFormula = (await shouldAcceptJob(description))
-              ? "yes"
-              : "no";
+            approvedByFormula = (await shouldAcceptJob(description)) ? "yes" : "no";
           }
         } catch (error) {
           console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
         }
 
         // Check if the job already exists in the DB
-        const returnedJob = await jobServices.createJob(
-          job,
-          approvedByFormula,
-          keyword.keyword
-        );
+        const returnedJob = await jobServices.createJob(job, approvedByFormula, keyword.keyword);
         returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
         if (description !== "" && returnedJob.createdJob) {
           try {
-            const returnedJobDescription =
-              await jobDescriptionServices.createJobDescription({
-                id: job.id,
-                description,
-                state: "LISTED",
-              });
+            const returnedJobDescription = await jobDescriptionServices.createJobDescription({
+              id: job.id,
+              description,
+              state: "LISTED",
+            });
             if (returnedJobDescription) {
               jobDescriptionsCreated++;
             }

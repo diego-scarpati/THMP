@@ -1,4 +1,4 @@
-import { Keyword } from "../models/index.js";
+import { Keyword } from "../models/index.ts";
 
 export const getAllKeywords = async () => {
   try {
@@ -7,7 +7,7 @@ export const getAllKeywords = async () => {
   } catch (error) {
     console.log("🚀 ~ getAllKeywords ~ error:", error);
   }
-}
+};
 
 export const getKeywordById = async (id) => {
   try {
@@ -16,7 +16,7 @@ export const getKeywordById = async (id) => {
   } catch (error) {
     console.log("🚀 ~ getKeywordById ~ error:", error);
   }
-}
+};
 
 export const createKeyword = async (keyword) => {
   try {
@@ -25,4 +25,4 @@ export const createKeyword = async (keyword) => {
   } catch (error) {
     console.log("🚀 ~ createKeyword ~ error:", error);
   }
-}
+};

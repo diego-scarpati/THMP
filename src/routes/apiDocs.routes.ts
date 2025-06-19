@@ -1,6 +1,7 @@
-const path = require("path");
-const express = require("express");
-const swaggerUi = require("swagger-ui-express");
+import path from "path";
+import express, { Request, Response } from "express";
+import swaggerUi from "swagger-ui-express";
+
 const openApiDoc = require("../schemas/openapi.json");
 
 const apiDocsRouter = express.Router();
@@ -24,4 +25,4 @@ apiDocsRouter.use(
   express.static(path.join(__dirname, "../../schemas/openapi.json"))
 );
 
-module.exports = apiDocsRouter;
+export default apiDocsRouter;

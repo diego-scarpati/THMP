@@ -1,10 +1,15 @@
-const OpenAI = require("openai");
-const path = require("path");
-const dotenv = require("dotenv");
+import OpenAI from "openai";
+import path from "path";
+import dotenv from "dotenv";
 
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
-const { OPENAI_API_KEY, GPT_APPROVAL_V1 } = process.env;
+interface Env {
+  OPENAI_API_KEY?: string;
+  GPT_APPROVAL_V1?: string;
+}
+
+const { OPENAI_API_KEY, GPT_APPROVAL_V1 } = process.env as Env;
 
 const descriptionExample = `
 Job Description
@@ -44,7 +49,11 @@ Communication Skills:
 Strong ability to communicate effectively with internal and external stakeholders.
 `;
 
-const approveByAssistantGPT = async (job) => {
+interface Job {
+  description: string;
+}
+
+const approveByAssistantGPT = async (job: Job): Promise<string | undefined> => {
   const jobDescription = job.description;
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
@@ -78,7 +87,7 @@ const approveByAssistantGPT = async (job) => {
   }
 };
 
-const retrieveRun = async (threadId, runId) => {
+const retrieveRun = async (threadId: string, runId: string): Promise<void> => {
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
   });
@@ -90,7 +99,7 @@ const retrieveRun = async (threadId, runId) => {
   }
 };
 
-const retrieveAllRuns = async (threadId) => {
+const retrieveAllRuns = async (threadId: string): Promise<void> => {
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
   });
@@ -104,7 +113,7 @@ const retrieveAllRuns = async (threadId) => {
   }
 };
 
-const retrieveThread = async (threadId) => {
+const retrieveThread = async (threadId: string): Promise<void> => {
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
   });
@@ -116,4 +125,4 @@ const retrieveThread = async (threadId) => {
   }
 };
 
-module.exports = { approveByAssistantGPT };
+export default { approveByAssistantGPT };

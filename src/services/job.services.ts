@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.ts";
 // import {
 //   acceptByFormula,
 //   gptApproval,
@@ -14,9 +14,9 @@ import {
   excludeCs,
   excludeCSharp,
   excludeCPlusPlus,
-} from "../utils/regex.js";
-import { approveByAssistantGPT } from "../utils/assistants.cjs";
-import shouldAcceptJob from "../utils/approveByFormula.cjs";
+} from "../utils/regex.ts";
+import { approveByAssistantGPT } from "../utils/assistants.ts";
+import shouldAcceptJob from "../utils/approveByFormula.ts";
 
 export const getAllJobs = async (whereClause) => {
   const { where, include, limit, offset, order } = whereClause;
@@ -221,10 +221,7 @@ export const approveByGPT = async (jobs) => {
     const postDate = new Date(job.dataValues.postDate);
     const shouldRejectByPostDate = today - postDate > 10 * 24 * 60 * 60 * 1000;
     if (shouldRejectByPostDate) {
-      console.log(
-        "🚀 ~ approveByGPT ~ shouldRejectByPostDate:",
-        shouldRejectByPostDate
-      );
+      console.log("🚀 ~ approveByGPT ~ shouldRejectByPostDate:", shouldRejectByPostDate);
       try {
         await Job.update(
           { approvedByGPT: "no" },
@@ -239,8 +236,7 @@ export const approveByGPT = async (jobs) => {
       }
       continue;
     }
-    const jobDescription =
-      job.dataValues.JobDescription?.dataValues?.description || null;
+    const jobDescription = job.dataValues.JobDescription?.dataValues?.description || null;
     // console.log("🚀 ~ approveByGPT ~ jobDescription:", jobDescription)
     if (!jobDescription) {
       console.log("🚀 ~ approveByGPT ~ job:", job.id);
@@ -276,10 +272,7 @@ export const approveByFormula = async (jobs) => {
     const shouldRejectByPostDate = today - postDate > 7 * 24 * 60 * 60 * 1000;
 
     if (shouldRejectByPostDate) {
-      console.log(
-        "🚀 ~ approveByFormula ~ shouldRejectByPostDate:",
-        shouldRejectByPostDate
-      );
+      console.log("🚀 ~ approveByFormula ~ shouldRejectByPostDate:", shouldRejectByPostDate);
       try {
         await Job.update(
           { approvedByFormula: "no" },

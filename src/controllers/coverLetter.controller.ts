@@ -1,4 +1,4 @@
-import * as coverLetterService from "../services/coverLetter.services.js";
+import * as coverLetterService from "../services/coverLetter.services.ts";
 
 export const getAllCoverLetters = async (req, res) => {
   try {
@@ -22,9 +22,7 @@ export const getCoverLetterById = async (req, res) => {
 export const createCoverLetter = async (req, res) => {
   const { coverLetter } = req.body;
   try {
-    const newCoverLetter = await coverLetterService.createCoverLetter(
-      coverLetter
-    );
+    const newCoverLetter = await coverLetterService.createCoverLetter(coverLetter);
     return res.status(201).json(newCoverLetter);
   } catch (error) {
     console.log("🚀 ~ createCoverLetter ~ error:", error);

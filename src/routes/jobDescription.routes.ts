@@ -1,5 +1,5 @@
 import express from "express";
-import * as jobDescriptionController from "../controllers/jobDescription.controller.js";
+import * as jobDescriptionController from "../controllers/jobDescription.controller.ts";
 
 const jobDescriptionRoutes = express.Router();
 
@@ -23,10 +23,7 @@ const jobDescriptionRoutes = express.Router();
  *       '500':
  *         description: Internal server error
  */
-jobDescriptionRoutes.get(
-  "/getAll",
-  jobDescriptionController.getAllJobDescriptions
-);
+jobDescriptionRoutes.get("/getAll", jobDescriptionController.getAllJobDescriptions);
 
 /**
  * @swagger
@@ -58,18 +55,12 @@ jobDescriptionRoutes.get(
  *       '500':
  *         description: Internal server error
  */
-jobDescriptionRoutes.get(
-  "/getById/:id",
-  jobDescriptionController.getJobDescriptionById
-);
-jobDescriptionRoutes.post(
-  "/create",
-  jobDescriptionController.createJobDescription
-);
+jobDescriptionRoutes.get("/getById/:id", jobDescriptionController.getJobDescriptionById);
+jobDescriptionRoutes.post("/create", jobDescriptionController.createJobDescription);
 
 /**
  * @swagger
- * /api/jobDecriptions/loopAndCreate:
+ * /api/jobDescriptions/loopAndCreate:
  *   post:
  *     tags:
  *       - Job Description
@@ -88,9 +79,6 @@ jobDescriptionRoutes.post(
  *       '500':
  *         description: Internal server error
  */
-jobDescriptionRoutes.post(
-  "/loopAndCreate",
-  jobDescriptionController.loopAndCreateJobDescription
-);
+jobDescriptionRoutes.post("/loopAndCreate", jobDescriptionController.loopAndCreateJobDescription);
 
 export default jobDescriptionRoutes;

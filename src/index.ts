@@ -1,9 +1,9 @@
 import express from "express";
 import morgan from "morgan";
-import router from "./routes/index.routes.js";
+import router from "./routes/index.routes.ts";
 import cors from "cors";
-import db from "./db/connection.cjs";
-import apiDocsRouter from "./routes/apiDocs.routes.cjs";
+import db from "./db/connection.ts";
+import apiDocsRouter from "./routes/apiDocs.routes.ts";
 
 const app = express();
 const port = 8888;

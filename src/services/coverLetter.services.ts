@@ -1,4 +1,4 @@
-import { CoverLetter } from "../models/index.js";
+import { CoverLetter } from "../models/index.ts";
 
 export const getAllCoverLetters = async () => {
   try {
@@ -7,7 +7,7 @@ export const getAllCoverLetters = async () => {
   } catch (error) {
     console.log("🚀 ~ getAllCoverLetters ~ error:", error);
   }
-}
+};
 
 export const getCoverLetterById = async (id) => {
   try {
@@ -16,7 +16,7 @@ export const getCoverLetterById = async (id) => {
   } catch (error) {
     console.log("🚀 ~ getCoverLetterById ~ error:", error);
   }
-}
+};
 
 export const createCoverLetter = async (coverLetter) => {
   try {
@@ -25,4 +25,4 @@ export const createCoverLetter = async (coverLetter) => {
   } catch (error) {
     console.log("🚀 ~ createCoverLetter ~ error:", error);
   }
-}
+};

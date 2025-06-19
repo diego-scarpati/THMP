@@ -1,4 +1,4 @@
-import * as keywordService from "../services/keyword.services.js";
+import * as keywordService from "../services/keyword.services.ts";
 
 export const getAllKeywords = async (req, res) => {
   try {

@@ -1,8 +1,8 @@
-import express from 'express';
-import jobRoutes from "./job.routes.js";
-import jobDescriptionRoutes from "./jobDescription.routes.js";
-import keywordRoutes from "./keyword.routes.js";
-import coverLetterRoutes from "./coverLetter.routes.js";
+import express from "express";
+import jobRoutes from "./job.routes.ts";
+import jobDescriptionRoutes from "./jobDescription.routes.ts";
+import keywordRoutes from "./keyword.routes.ts";
+import coverLetterRoutes from "./coverLetter.routes.ts";
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ const routes = [
     path: "/coverLetters",
     router: coverLetterRoutes,
   },
-]
+];
 
 routes.forEach((route) => {
   router.use(route.path, route.router);

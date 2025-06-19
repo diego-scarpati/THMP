@@ -1,4 +1,6 @@
-const candidateSkillsJson = require("../assets/diego-scarpati-skills.json");
+const candidateSkillsJson = require("../assets/diego-scarpati-skills.json") as {
+  skills: string[];
+};
 
 const rejectingSkills = [
   ".Net",
@@ -64,7 +66,7 @@ const candidateSkills = candidateSkillsJson.skills;
  * @param {number} candidateExperience - The candidate's experience in years.
  * @returns {boolean} - True if the candidate meets the requirement (or no requirement is specified), false otherwise.
  */
-function checkExperience(jobDescription, candidateExperience) {
+function checkExperience(jobDescription: string, candidateExperience: number): boolean {
   // Normalize the description to lower-case for case-insensitive matching.
   const description = jobDescription.toLowerCase();
   let match;
@@ -77,9 +79,7 @@ function checkExperience(jobDescription, candidateExperience) {
   }
 
   // 2. "Between X and Y years" or "Between X-Y years"
-  match = description.match(
-    /\bbetween\s+(\d+)\s*(?:and|-)\s*(\d+)\s*(?:years?|yrs?)\b/
-  );
+  match = description.match(/\bbetween\s+(\d+)\s*(?:and|-)\s*(\d+)\s*(?:years?|yrs?)\b/);
   if (match) {
     const minExp = parseInt(match[1], 10);
     const maxExp = parseInt(match[2], 10);
@@ -118,10 +118,15 @@ function checkExperience(jobDescription, candidateExperience) {
     return candidateExperience >= minExp;
   }
 
+  // "X+ experience" or "X+ years of experience"
+  match = description.match(/\b(\d+)\s*\+\s*(?:years?|yrs?)?\s*(?:of\s+)?experience\b/);
+  if (match) {
+    const minExp = parseInt(match[1], 10);
+    return candidateExperience >= minExp;
+  }
+
   // 5. "More than X years" or "Over X years" → candidate must have strictly more than X years.
-  match = description.match(
-    /\b(?:more\s+than|over)\s+(\d+)\s*(?:years?|yrs?)\b/
-  );
+  match = description.match(/\b(?:more\s+than|over)\s+(\d+)\s*(?:years?|yrs?)\b/);
   if (match) {
     const requiredExp = parseInt(match[1], 10);
     return candidateExperience > requiredExp;
@@ -155,6 +160,13 @@ function checkExperience(jobDescription, candidateExperience) {
     return candidateExperience >= minExp;
   }
 
+  // "X years of experience" or "X years experience"
+  match = description.match(/\b(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?experience\b/);
+  if (match) {
+    const minExp = parseInt(match[1], 10);
+    return candidateExperience >= minExp;
+  }
+
   // If no experience-related phrases are found, assume no specific requirement.
   return true;
 }
@@ -165,7 +177,7 @@ function checkExperience(jobDescription, candidateExperience) {
  * @param {string[]} jobSkills - The skills required for the job.
  * @returns {boolean} - True if the candidate meets the criteria, otherwise false.
  */
-function checkSkills(jobSkills) {
+function checkSkills(jobSkills: string): boolean {
   console.log("🚀 ~ checkSkills ~ jobSkills:", jobSkills);
   // If jobSkills is null, undefined, or an empty array, immediately return false.
   if (!jobSkills || jobSkills.split(" ,").length === 0) {
@@ -177,9 +189,7 @@ function checkSkills(jobSkills) {
   // When the job requires more than 5 skills:
   if (jobSkillsArray.length > 5) {
     // Count how many required skills are present in candidateSkills.
-    const matchedSkills = jobSkillsArray.filter((skill) =>
-      candidateSkills.includes(skill)
-    );
+    const matchedSkills = jobSkillsArray.filter((skill) => candidateSkills.includes(skill));
     // Candidate must have more than 50% of the required skills.
     console.log(
       "🚀 ~ checkSkills ~ matchedSkills.length > jobSkillsArray.length / 2:",
@@ -189,9 +199,7 @@ function checkSkills(jobSkills) {
   } else {
     // When the job requires 5 or fewer skills:
     // Count how many required skills are present in the candidate's "don't want" list.
-    const undesiredMatches = jobSkillsArray.filter((skill) =>
-      rejectingSkills.includes(skill)
-    );
+    const undesiredMatches = jobSkillsArray.filter((skill) => rejectingSkills.includes(skill));
     // The overlap must be less than 30% of the required skills.
     // (For example, for 5 required skills, 30% of 5 is 1.5, so only 0 or 1 match is acceptable.)
     console.log(
@@ -202,7 +210,12 @@ function checkSkills(jobSkills) {
   }
 }
 
-const shouldAcceptJob = (jobData, candidateYearsExperience) => {
+interface JobData {
+  description?: string;
+  skills?: string;
+}
+
+const shouldAcceptJob = (jobData: JobData, candidateYearsExperience: number): boolean => {
   // Extract the job description
   const description = jobData.description || "";
 
@@ -238,4 +251,4 @@ const jobExample = {
 
 // console.log(shouldAcceptJob(jobExample, candidateSkills, rejectingSkills, 4));
 
-module.exports = shouldAcceptJob;
+export default shouldAcceptJob;

@@ -1,13 +1,15 @@
-const dotenv = require("dotenv");
-const path = require("path");
-// import dotenv from "dotenv";
-// import path from "path";
+import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const { LINKEDIN_API_KEY } = process.env;
+interface Env {
+  LINKEDIN_API_KEY?: string;
+}
 
-const getJobDetails = async (jobId) => {
+const { LINKEDIN_API_KEY } = process.env as Env;
+
+export const getJobDetails = async (jobId: string): Promise<any> => {
   const url = `https://linkedin-api8.p.rapidapi.com/get-job-details?id=${jobId}`;
   const options = {
     method: "GET",
@@ -36,4 +38,4 @@ const getJobDetails = async (jobId) => {
   }
 };
 
-module.exports = { getJobDetails };
+export default { getJobDetails };

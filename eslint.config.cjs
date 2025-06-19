@@ -1,36 +1,58 @@
-// eslint.config.js
-// const eslintRecommended = require('eslint/use-at-your-own-risk').builtinRules;
+const tsPlugin = require("@typescript-eslint/eslint-plugin");
+const tsParser = require("@typescript-eslint/parser");
 const prettierConfig = require("eslint-plugin-prettier").configs.recommended;
 
 module.exports = [
+  // 🔒 Global ignore block
   {
-    files: ["**/*.{js, cjs}"], // Lint all JavaScript files
+    ignores: ["venv/**/*", "node_modules", "dist"],
+  },
+
+  // ✅ TypeScript config
+  {
+    files: ["**/*.ts"],
     languageOptions: {
-      ecmaVersion: 2021, // Support for modern ECMAScript features
-      sourceType: "module", // Enable ES module support (import/export)
+      parser: tsParser,
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: __dirname,
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tsPlugin,
+      prettier: require("eslint-plugin-prettier"),
+    },
+    rules: {
+      ...prettierConfig.rules,
+      "prettier/prettier": "error",
+      "no-console": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+    },
+  },
+
+  // ✅ JavaScript config
+  {
+    files: ["**/*.{js,cjs}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
       globals: {
-        // Define global variables for Node.js environment
         __dirname: "readonly",
         require: "readonly",
         module: "readonly",
         process: "readonly",
       },
     },
-
-    // Use Prettier as a plugin
     plugins: {
       prettier: require("eslint-plugin-prettier"),
     },
-
-    // Apply recommended rules and Prettier configuration
     rules: {
-      ...prettierConfig.rules, // Integrate Prettier recommended rules
-      "prettier/prettier": "error", // Prettier errors will be shown as ESLint errors
-
-      // Additional ESLint rules (optional)
+      ...prettierConfig.rules,
+      "prettier/prettier": "error",
       "no-console": "warn",
       "no-unused-vars": "warn",
-      // 'no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
     },
   },
 ];

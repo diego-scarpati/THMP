@@ -6,9 +6,9 @@ import {
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
-} from "../utils/regex.js";
-import { getAllJobs } from "./getAllJobs.cjs";
-import { getJobDetails } from "./getJobDetails.cjs";
+} from "../utils/regex.ts";
+import { getAllJobs } from "./getAllJobs.ts";
+import { getJobDetails } from "./getJobDetails.ts";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
@@ -39,19 +39,13 @@ export const fetchAllJobs = async (options) => {
           "🚀 ~ fetchAllJobs ~ Math.floor(total / pageSize):",
           Math.floor(total / pageSize)
         );
-        stop =
-          Math.floor(total / pageSize) + 1 > 2
-            ? 2
-            : Math.floor(total / pageSize) + 1;
+        stop = Math.floor(total / pageSize) + 1 > 2 ? 2 : Math.floor(total / pageSize) + 1;
       }
 
       // Increment the page for the next request
       page++;
     } while (page <= stop);
-    console.log(
-      "🚀 ~ fetchAllJobs ~ accumulatedData.length:",
-      accumulatedData.length
-    );
+    console.log("🚀 ~ fetchAllJobs ~ accumulatedData.length:", accumulatedData.length);
     // Filtering accumulatedData to remove duplicates by id
     const seen = new Set();
     accumulatedData = accumulatedData.filter((job) => {

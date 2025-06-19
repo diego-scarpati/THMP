@@ -1,5 +1,5 @@
 import express from "express";
-import * as jobController from "../controllers/job.controller.js";
+import * as jobController from "../controllers/job.controller.ts";
 
 const jobRoutes = express.Router();
 
@@ -99,10 +99,7 @@ jobRoutes.get("/getJobById/:id", jobController.getJobById);
  *       '500':
  *         description: Internal server error
  */
-jobRoutes.get(
-  "/getJobsByCompanyName/:companyName",
-  jobController.getJobsByCompanyName
-);
+jobRoutes.get("/getJobsByCompanyName/:companyName", jobController.getJobsByCompanyName);
 
 // jobRoutes.get("/getAllByAccepetance", jobController.getAllByAccepetance);
 // jobRoutes.get("/getAllByCoverLetter", jobController.getAllByCoverLetter);
@@ -159,10 +156,7 @@ jobRoutes.get(
  */
 jobRoutes.post("/searchAndCreate", jobController.searchAndCreateJobs);
 
-jobRoutes.post(
-  "/searchAndCreateWithAllKeywords",
-  jobController.searchAndCreateWithAllKeywords
-);
+jobRoutes.post("/searchAndCreateWithAllKeywords", jobController.searchAndCreateWithAllKeywords);
 // jobRoutes.post("/bulkCreate", jobController.bulkCreate);
 
 // jobRoutes.patch("/update/:id", jobController.updateJob);
