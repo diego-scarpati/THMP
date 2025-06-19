@@ -1,11 +1,11 @@
 {
   "name": "the-hire-me-project",
   "version": "1.0.0",
-  "main": "src/index.ts",
-  "type": "module",
+  "main": "dist/index.js",
+  "type": "commonjs",
   "scripts": {
     "test": "jest",
-    "start": "nodemon src/index.ts",
+    "start": "nodemon",
     "schemas:openapi": "swagger-jsdoc -d src/routes/definition.yaml src/routes/**/*.js src/routes/**/*.yaml \"src/routes/!(definition).yaml\" -o src/schemas/openapi.json",
     "prepare": "husky install",
     "build": "tsc"
@@ -55,6 +55,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^8.6.0"
+    "typescript-eslint": "^8.6.0",
+    "ts-node": "^10.9.2"
   }
 }
