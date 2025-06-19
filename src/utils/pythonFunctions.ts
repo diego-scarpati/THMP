@@ -1,7 +1,26 @@
-const { PythonShell } = require("python-shell");
-const path = require("path");
+import { PythonShell } from "python-shell";
+import path from "path";
 
-const resume = {
+interface Resume {
+  personal_profile: Record<string, unknown>;
+  professional_profile: {
+    skills: string[];
+    [key: string]: unknown;
+  };
+  professional_experience: Array<{
+    company: string;
+    role: string;
+    dates: string;
+    responsibilities: string[];
+  }>;
+  education: Array<{
+    course: string;
+    institution: string;
+    year: number;
+  }>;
+}
+
+const resume: Resume = {
   personal_profile: {
     name: "Diego Scarpati",
     citizenship: ["Argentinean", "Italian"],
@@ -244,7 +263,7 @@ const rejectingSkills = [
 //   }
 // };
 
-const saveToFile = async (jobs) => {
+const saveToFile = async (jobs: unknown): Promise<string | undefined> => {
   let options = {
     mode: "text",
     pythonOptions: ["-u"],
@@ -289,4 +308,4 @@ const saveToFile = async (jobs) => {
 //   }
 // };
 
-module.exports = { saveToFile, resume, rejectingSkills };
+export { saveToFile, resume, rejectingSkills };

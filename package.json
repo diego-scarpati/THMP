@@ -1,11 +1,11 @@
 {
   "name": "the-hire-me-project",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "nodemon src/index.js",
+    "start": "nodemon src/index.ts",
     "schemas:openapi": "swagger-jsdoc -d src/routes/definition.yaml src/routes/**/*.js src/routes/**/*.yaml \"src/routes/!(definition).yaml\" -o src/schemas/openapi.json",
     "prepare": "husky install",
     "build": "tsc"

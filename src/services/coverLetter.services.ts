@@ -1,4 +1,4 @@
-import { CoverLetter } from "../models/index.js";
+import { CoverLetter } from "../models/index.ts";
 
 export const getAllCoverLetters = async () => {
   try {

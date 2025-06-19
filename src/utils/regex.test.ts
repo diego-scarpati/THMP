@@ -8,7 +8,7 @@ import {
   nonLatinPattern,
 } from "./regex.ts";
 
-const titlesToTest = [
+const titlesToTest: string[] = [
   "Mobile Engineer 2 (Android)",
   "365 CRM Developer",
   "Azure Application Developer",
@@ -20,7 +20,7 @@ const titlesToTest = [
 
 describe("Regex tests", () => {
   test("shouldExcludeIftitle", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(
       //   `🚀 ${title}: `,
       //   !shouldExcludeIftitle.test(title)
@@ -36,7 +36,7 @@ describe("Regex tests", () => {
   });
 
   test("shouldHaveInTitle", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(
       //   `🚀 ${title}: `,
       //   shouldHaveInTitle.test(title)
@@ -74,7 +74,7 @@ describe("Regex tests", () => {
   // });
 
   test("excludeCSharp", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(`🚀 ${title}: `, !excludeCSharp.test(title));
       return !excludeCSharp.test(title);
     });
@@ -90,7 +90,7 @@ describe("Regex tests", () => {
   });
 
   test("excludeCPlusPlus", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(`🚀 ${title}: `, !excludeCPlusPlus.test(title));
       return !excludeCPlusPlus.test(title);
     });
@@ -106,7 +106,7 @@ describe("Regex tests", () => {
   });
 
   test("excludeDotNet", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(`🚀 ${title}: `, !excludeDotNet.test(title));
       return !excludeDotNet.test(title);
     });
@@ -123,7 +123,7 @@ describe("Regex tests", () => {
   });
 
   test("filterFunction", () => {
-    const filteredTitles = titlesToTest.filter((title) => {
+    const filteredTitles = titlesToTest.filter((title: string) => {
       // console.log(`🚀 ${title}: `, !excludeDotNet.test(title));
       return (
         !shouldExcludeIftitle.test(title) &&

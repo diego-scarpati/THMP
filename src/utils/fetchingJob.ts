@@ -1,11 +1,11 @@
-const { JSDOM } = require("jsdom");
+import { JSDOM } from "jsdom";
 
 /**
  * Adds spaces after periods that are between a letter and a capital letter
  * @param {string} text - The input text
  * @returns {string} - The text with proper spacing after periods
  */
-function addSpacesAfterPeriods(text) {
+function addSpacesAfterPeriods(text: string): string {
   return text.replace(/(?<=[a-z])\.(?=[A-Z])/g, ". ");
 }
 
@@ -14,7 +14,7 @@ function addSpacesAfterPeriods(text) {
  * @param {string} text - The input text
  * @returns {string} - The cleaned text
  */
-function removeShowMoreLess(text) {
+function removeShowMoreLess(text: string): string {
   return text.replace(/\s*Show\s*more\s*Show\s*less\s*$/i, "");
 }
 
@@ -24,7 +24,7 @@ function removeShowMoreLess(text) {
  * @param {string} htmlString - The HTML content as a string.
  * @returns {string} - The extracted job description or an error message.
  */
-function extractJobDescriptionUsingJSDOM(htmlString) {
+function extractJobDescriptionUsingJSDOM(htmlString: string): string {
   // 1. Parse the HTML string using JSDOM
   const dom = new JSDOM(htmlString);
   const document = dom.window.document;
@@ -58,7 +58,7 @@ function extractJobDescriptionUsingJSDOM(htmlString) {
   }
 }
 
-const fetchJob = async (jobUrl) => {
+const fetchJob = async (jobUrl: string): Promise<string> => {
   // this function should return the html content of the url passed as parameter as a string
   const htmlContent = await fetch(jobUrl).then((res) => res.text());
   // console.log("🚀 ~ fetchJob ~ htmlContent:", htmlContent)
@@ -71,4 +71,4 @@ const fetchJob = async (jobUrl) => {
 // fetchJob("https://www.linkedin.com/jobs/view/4143958733")
 // fetchJob("https://www.linkedin.com/jobs/view/4087488707")
 
-module.exports = fetchJob;
+export default fetchJob;

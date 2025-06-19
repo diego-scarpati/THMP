@@ -1,12 +1,13 @@
-// import dotenv from 'dotenv';
-// import path from 'path';
-// import { fileURLToPath } from 'url';
-const dotenv = require("dotenv");
-const path = require("path");
+import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const { LINKEDIN_API_KEY } = process.env;
+interface Env {
+  LINKEDIN_API_KEY?: string;
+}
+
+const { LINKEDIN_API_KEY } = process.env as Env;
 
 /**
  *
@@ -18,7 +19,19 @@ const { LINKEDIN_API_KEY } = process.env;
  * @param {* string (optional) it could be one of these: 0, 25, 50, 75, 100, etc. The maximum number of start is 975} start
  * @param {* string (optional) it could be one of these: internship, associate, director, entryLevel, midSeniorLevel.} experienceLevel
  */
-const getAllJobs = async (getAllJobsParamObject) => {
+export interface GetAllJobsParams {
+  keywords: string;
+  locationId?: number;
+  datePosted?: string;
+  sort?: string;
+  onsiteRemote?: string;
+  start?: number;
+  experienceLevel?: string;
+}
+
+export const getAllJobs = async (
+  getAllJobsParamObject: GetAllJobsParams
+): Promise<any> => {
   const { keywords, locationId, datePosted, sort, start, experienceLevel } =
     getAllJobsParamObject;
   const parsedKeywords = keywords.split(" ").join("%20");
@@ -80,4 +93,4 @@ const getAllJobs = async (getAllJobsParamObject) => {
   }
 };
 
-module.exports = { getAllJobs };
+export default { getAllJobs };
