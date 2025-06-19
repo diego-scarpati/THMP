@@ -4,7 +4,7 @@ const prettierConfig = require("eslint-plugin-prettier").configs.recommended;
 
 module.exports = [
   {
-    files: ["**/*.{js, cjs}"], // Lint all JavaScript files
+    files: ["**/*.{js,ts,cjs}"], // Lint JavaScript and TypeScript files
     languageOptions: {
       ecmaVersion: 2021, // Support for modern ECMAScript features
       sourceType: "module", // Enable ES module support (import/export)
