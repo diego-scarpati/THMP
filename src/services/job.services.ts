@@ -21,7 +21,7 @@ import shouldAcceptJob from "../utils/approveByFormula";
 
 export const getAllJobs = async (
   whereClause: any
-): Promise<{ total: number; data: JobAttributes[] } | undefined> => {
+): Promise<{ total: number; data: Job[] } | undefined> => {
   const { where, include, limit, offset, order } = whereClause;
   console.log("🚀 ~ getAllJobs ~ whereClause:", whereClause);
   // console.log("🚀 ~ getAllJobs ~ where:", where)
@@ -49,18 +49,19 @@ export const getAllJobs = async (
 
 export const getJobById = async (
   id: string
-): Promise<JobAttributes | null> => {
+): Promise<Job | null> => {
   try {
     const job = await Job.findByPk(id);
     return job;
   } catch (error) {
     console.log("🚀 ~ getJobById ~ error:", error);
+    return null;
   }
 };
 
 export const getJobsByCompanyName = async (
   companyName: string
-): Promise<JobAttributes[]> => {
+): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -79,13 +80,14 @@ export const getJobsByCompanyName = async (
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getJobsByCompanyName ~ error:", error);
+    return [];
   }
 };
 
 export const getAllByAccepetance = async (
   formulaAcceptance: string | undefined,
   gptAcceptance: string | undefined
-): Promise<JobAttributes[]> => {
+): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -96,10 +98,11 @@ export const getAllByAccepetance = async (
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllByAccepetance ~ error:", error);
+    return [];
   }
 };
 
-export const getAllByCoverLetter = async (): Promise<JobAttributes[]> => {
+export const getAllByCoverLetter = async (): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       include: {
@@ -114,10 +117,11 @@ export const getAllByCoverLetter = async (): Promise<JobAttributes[]> => {
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllByCoverLetter ~ error:", error);
+    return [];
   }
 };
 
-export const getAllApplied = async (): Promise<JobAttributes[]> => {
+export const getAllApplied = async (): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -127,10 +131,11 @@ export const getAllApplied = async (): Promise<JobAttributes[]> => {
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllApplied ~ error:", error);
+    return [];
   }
 };
 
-export const getAllRejected = async (): Promise<JobAttributes[]> => {
+export const getAllRejected = async (): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -140,14 +145,15 @@ export const getAllRejected = async (): Promise<JobAttributes[]> => {
     return jobs;
   } catch (error) {
     console.log("🚀 ~ getAllApplied ~ error:", error);
+    return [];
   }
 };
 
 export const createJob = async (
-  job: JobAttributes,
+  job: any,
   approvedByFormula: string,
   keyword: string
-): Promise<{ newJob: JobAttributes; createdJob: boolean } | undefined> => {
+): Promise<{ newJob: Job; createdJob: boolean } | undefined> => {
   try {
     const [newKeyword] = await Keyword.findOrCreate({
       where: {
@@ -173,7 +179,7 @@ export const createJob = async (
         approvedByFormula: approvedByFormula || "pending",
       },
     });
-    await newJob.addKeyword(newKeyword);
+    await (newJob as any).addKeyword(newKeyword);
     return { newJob, createdJob };
   } catch (error) {
     console.log("🚀 ~ createJob ~ error:", error);
@@ -181,9 +187,9 @@ export const createJob = async (
 };
 
 export const bulkCreateJobs = async (
-  jobs: JobAttributes[],
+  jobs: any[],
   keyword: string
-): Promise<JobAttributes[] | undefined> => {
+): Promise<Job[] | undefined> => {
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
@@ -192,7 +198,7 @@ export const bulkCreateJobs = async (
     });
     const newJobs = await Job.bulkCreate(jobs, { ignoreDuplicates: true });
     await newJobs.forEach(async (job) => {
-      await job.addKeyword(keywordInstance);
+      await (job as any).addKeyword(keywordInstance);
     });
     return newJobs;
   } catch (error) {
@@ -204,7 +210,7 @@ export const bulkCreateJobs = async (
 export const updateJob = async (
   id: string,
   jobInfo: Partial<JobAttributes>
-): Promise<[number]> => {
+): Promise<[number] | undefined> => {
   try {
     const updatedJob = await Job.update(jobInfo, {
       where: {
@@ -214,12 +220,13 @@ export const updateJob = async (
     return updatedJob;
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
+    return undefined;
   }
 };
 
 export const updateApprovedByDate = async (
   jobId: string
-): Promise<[number]> => {
+): Promise<[number] | undefined> => {
   try {
     const updatedJob = await Job.update(
       { easyApply: "yes" },
@@ -232,10 +239,11 @@ export const updateApprovedByDate = async (
     return updatedJob;
   } catch (error) {
     console.log("🚀 ~ updateJob ~ error:", error);
+    return undefined;
   }
 };
 
-export const approveByGPT = async (jobs: JobAttributes[]): Promise<string> => {
+export const approveByGPT = async (jobs: Job[]): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
     // console.log("🚀 ~ approveByGPT ~ job:", job)
@@ -287,7 +295,7 @@ export const approveByGPT = async (jobs: JobAttributes[]): Promise<string> => {
 };
 
 export const approveByFormula = async (
-  jobs: JobAttributes[]
+  jobs: Job[]
 ): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
@@ -337,7 +345,7 @@ export const approveByFormula = async (
 };
 
 export const filterByJobTitle = async (
-  jobs: JobAttributes[]
+  jobs: Job[]
 ): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
@@ -377,7 +385,7 @@ export const filterByJobTitle = async (
 export const addKeywordToJob = async (
   jobId: string,
   keyword: string
-): Promise<JobAttributes | null> => {
+): Promise<Job | null> => {
   const job = await Job.findByPk(jobId);
   const [newKeyword] = await Keyword.findOrCreate({
     where: {
@@ -387,6 +395,6 @@ export const addKeywordToJob = async (
       keyword,
     },
   });
-  await job.addKeyword(newKeyword);
+  await (job as any)?.addKeyword(newKeyword);
   return job;
 };
