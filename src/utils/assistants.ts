@@ -53,7 +53,9 @@ interface Job {
   description: string;
 }
 
-const approveByAssistantGPT = async (job: Job): Promise<string | undefined> => {
+export const approveByAssistantGPT = async (
+  job: Job
+): Promise<string | undefined> => {
   const jobDescription = job.description;
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
