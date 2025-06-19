@@ -6,6 +6,12 @@ import { saveToFile } from "../utils/pythonFunctions";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
 import fetchJob from "../utils/fetchingJob";
 import shouldAcceptJob from "../utils/approveByFormula";
+import {
+  JobAttributes,
+  JobDescriptionAttributes,
+  KeywordAttributes,
+  CoverLetterAttributes,
+} from "../utils/types";
 
 const modelOptions = [
   // Model parameters
@@ -246,7 +252,7 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobsThatAlreadyExist = 0;
     let jobDescriptionsCreated = 0;
 
-    for (const job of jobs.data) {
+    for (const job of jobs.data as JobAttributes[]) {
       const existingJob = await jobServices.getJobById(job.id);
       if (existingJob) {
         jobsThatAlreadyExist++;
@@ -316,7 +322,7 @@ export const updateApprovedByDate = async (req, res) => {
     if (jobs.total === 0) {
       return res.status(404).send("No jobs found");
     }
-    for (const job of jobs.data) {
+    for (const job of jobs.data as JobAttributes[]) {
       await jobServices.updateApprovedByDate(job.id);
       jobsUpdated++;
     }
@@ -447,7 +453,7 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
       if (jobs.total) searchedJobs += jobs.total;
 
       // Loop through each job and create it
-      for (const job of jobs.data) {
+      for (const job of jobs.data as JobAttributes[]) {
         // Check if job has already been looped in other keyword
         if (idSet.has(job.id)) {
           jobsLoopedInOtherKeywords++;

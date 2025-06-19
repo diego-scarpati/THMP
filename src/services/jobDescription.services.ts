@@ -1,10 +1,11 @@
 import { fetchJobDetails } from "../linkedin_api/index";
 import { JobDescription } from "../models/index";
+import { JobDescriptionAttributes, JobAttributes } from "../utils/types";
 import * as jobServices from "../services/job.services";
 // import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 import shouldAcceptJob from "../utils/approveByFormula";
 
-export const getAllJobDescriptions = async () => {
+export const getAllJobDescriptions = async (): Promise<JobDescriptionAttributes[]> => {
   try {
     const jobDescriptions = await JobDescription.findAll();
     return jobDescriptions;
@@ -13,7 +14,9 @@ export const getAllJobDescriptions = async () => {
   }
 };
 
-export const getJobDescriptionById = async (id) => {
+export const getJobDescriptionById = async (
+  id: string
+): Promise<JobDescriptionAttributes | null> => {
   try {
     const jobDescription = await JobDescription.findByPk(id);
     return jobDescription;
@@ -22,7 +25,9 @@ export const getJobDescriptionById = async (id) => {
   }
 };
 
-export const createJobDescription = async (jobDescription) => {
+export const createJobDescription = async (
+  jobDescription: JobDescriptionAttributes
+): Promise<JobDescriptionAttributes | null> => {
   try {
     const newJobDescription = await JobDescription.create({
       id: jobDescription.id,
@@ -35,7 +40,9 @@ export const createJobDescription = async (jobDescription) => {
   }
 };
 
-export const loopAndCreateJobDescription = async (jobsToCreateDescriptions) => {
+export const loopAndCreateJobDescription = async (
+  jobsToCreateDescriptions: JobAttributes[]
+): Promise<string | null> => {
   try {
     let jobDescriptionsCreated = 0;
     let jobAlreadyCreated = 0;
