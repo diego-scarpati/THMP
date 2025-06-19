@@ -3,15 +3,9 @@ import * as jobDescriptionServices from "../services/jobDescription.services";
 import * as keywordServices from "../services/keyword.services";
 import * as linkedInApi from "../linkedin_api/index";
 import { saveToFile } from "../utils/pythonFunctions";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
+import { Job, JobDescription, Keyword } from "../models/index";
 import fetchJob from "../utils/fetchingJob";
 import shouldAcceptJob from "../utils/approveByFormula";
-import {
-  JobAttributes,
-  JobDescriptionAttributes,
-  KeywordAttributes,
-  CoverLetterAttributes,
-} from "../utils/types";
 
 const modelOptions = [
   // Model parameters
@@ -254,8 +248,8 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobsThatAlreadyExist = 0;
     let jobDescriptionsCreated = 0;
 
-    for (const job of jobs.data as JobAttributes[]) {
-      const existingJob = await jobServices.getJobById(job.id);
+    for (const job of jobs.data as Job[]) {
+      const existingJob = await jobServices.getJobById(job.dataValues.id);
       if (existingJob) {
         jobsThatAlreadyExist++;
         continue;
@@ -264,7 +258,7 @@ export const searchAndCreateJobs = async (req, res) => {
       let description = "";
 
       try {
-        description = await fetchJob(job.url);
+        description = await fetchJob(job.dataValues.url);
         if (description !== "") {
           console.log("🚀 ~ Description exists");
           approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
@@ -273,19 +267,17 @@ export const searchAndCreateJobs = async (req, res) => {
       } catch (error) {
         console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
       }
-    const returnedJob = await jobServices.createJob(
-      job,
-      approvedByFormula,
-      keywords
-    );
-    returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
-    if (description !== "" && returnedJob?.createdJob) {
+      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords);
+      returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+      if (description !== "" && returnedJob?.createdJob) {
         try {
-          const returnedJobDescription = await jobDescriptionServices.createJobDescription({
-            id: job.id,
-            description,
+          const jobDescriptionData: JobDescription = {
+            id: job.dataValues.id,
             state: "LISTED",
-          });
+            description,
+          };
+          const returnedJobDescription =
+            await jobDescriptionServices.createJobDescription(jobDescriptionData);
           if (returnedJobDescription) {
             jobDescriptionsCreated++;
           }
@@ -331,8 +323,8 @@ export const updateApprovedByDate = async (req, res) => {
     if (jobs.total === 0) {
       return res.status(404).send("No jobs found");
     }
-    for (const job of jobs.data as JobAttributes[]) {
-      await jobServices.updateApprovedByDate(job.id);
+    for (const job of jobs.data as Job[]) {
+      await jobServices.updateApprovedByDate(job.dataValues.id);
       jobsUpdated++;
     }
     return res.status(200).json(jobsUpdated);
@@ -430,7 +422,7 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
   try {
     // Get all keywords
     const keywords = await keywordServices.getAllKeywords();
-    console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keywords:", keywords.length);
+    console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keywords:", keywords?.length);
 
     // If no keywords found, return 404
     if (!keywords || keywords.length === 0) {
@@ -448,11 +440,11 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
 
     // Loop through each keyword
     for (const keyword of keywords) {
-      console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keyword:", keyword.keyword);
+      console.log("🚀 ~ searchAndCreateWithAllKeywords ~ keyword:", keyword.dataValues.keyword);
 
       // Searching and filtering jobs according to the specific keyword on the loop
       const jobs = await linkedInApi.filterJobs({
-        keywords: keyword.keyword,
+        keywords: keyword.dataValues.keyword,
         locationId,
         datePosted,
         sort,
@@ -465,32 +457,30 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
       if (jobs.total) searchedJobs += jobs.total;
 
       // Loop through each job and create it
-      for (const job of jobs.data as JobAttributes[]) {
+      for (const job of jobs.data as Job[]) {
         // Check if job has already been looped in other keyword
-        if (idSet.has(job.id)) {
+        if (idSet.has(job.dataValues.id)) {
           jobsLoopedInOtherKeywords++;
           // Shoudl add the keyword to the job
-          jobServices.addKeywordToJob(job.id, keyword.keyword);
+          jobServices.addKeywordToJob(job.dataValues.id, keyword.dataValues.keyword);
           continue;
         }
 
         // Add job id to the set
-        idSet.add(job.id);
+        idSet.add(job.dataValues.id);
         let approvedByFormula = "pending";
         let description = "";
 
-        const jobExists = await jobServices.getJobById(job.id);
+        const jobExists = await jobServices.getJobById(job.dataValues.id);
         if (jobExists) {
           jobsThatAlreadyExist++;
           continue;
         }
 
         try {
-          description = await fetchJob(job.url);
+          description = await fetchJob(job.dataValues.url);
           if (description !== "") {
-            approvedByFormula = (await shouldAcceptJob({ description }, 4))
-              ? "yes"
-              : "no";
+            approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
           }
         } catch (error) {
           console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
@@ -500,13 +490,13 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         const returnedJob = await jobServices.createJob(
           job,
           approvedByFormula,
-          keyword.keyword
+          keyword.dataValues.keyword
         );
         returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
         if (description !== "" && returnedJob?.createdJob) {
           try {
             const returnedJobDescription = await jobDescriptionServices.createJobDescription({
-              id: job.id,
+              id: job.dataValues.id,
               description,
               state: "LISTED",
             });

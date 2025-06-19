@@ -1,18 +1,11 @@
 import { Op } from "sequelize";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
 import { JobAttributes } from "../utils/types";
-// import {
-//   acceptByFormula,
-//   gptApproval,
-//   resume,
-//   rejectingSkills
-// } from "../utils/pythonFunctions.cjs";
 import {
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
   excludeDotNet,
-  excludeCs,
   excludeCSharp,
   excludeCPlusPlus,
 } from "../utils/regex";
@@ -47,9 +40,7 @@ export const getAllJobs = async (
   }
 };
 
-export const getJobById = async (
-  id: string
-): Promise<Job | null> => {
+export const getJobById = async (id: string): Promise<Job | null> => {
   try {
     const job = await Job.findByPk(id);
     return job;
@@ -59,9 +50,7 @@ export const getJobById = async (
   }
 };
 
-export const getJobsByCompanyName = async (
-  companyName: string
-): Promise<Job[]> => {
+export const getJobsByCompanyName = async (companyName: string): Promise<Job[]> => {
   try {
     const jobs = await Job.findAll({
       where: {
@@ -186,10 +175,7 @@ export const createJob = async (
   }
 };
 
-export const bulkCreateJobs = async (
-  jobs: any[],
-  keyword: string
-): Promise<Job[] | undefined> => {
+export const bulkCreateJobs = async (jobs: any[], keyword: string): Promise<Job[] | undefined> => {
   try {
     const keywordInstance = await Keyword.findOne({
       where: {
@@ -224,9 +210,7 @@ export const updateJob = async (
   }
 };
 
-export const updateApprovedByDate = async (
-  jobId: string
-): Promise<[number] | undefined> => {
+export const updateApprovedByDate = async (jobId: string): Promise<[number] | undefined> => {
   try {
     const updatedJob = await Job.update(
       { easyApply: "yes" },
@@ -249,7 +233,7 @@ export const approveByGPT = async (jobs: Job[]): Promise<string> => {
     // console.log("🚀 ~ approveByGPT ~ job:", job)
     const today = new Date();
     const postDate = new Date(job.dataValues.postDate);
-    const shouldRejectByPostDate = today - postDate > 10 * 24 * 60 * 60 * 1000;
+    const shouldRejectByPostDate = today.getTime() - postDate.getTime() > 10 * 24 * 60 * 60 * 1000;
     if (shouldRejectByPostDate) {
       console.log("🚀 ~ approveByGPT ~ shouldRejectByPostDate:", shouldRejectByPostDate);
       try {
@@ -257,7 +241,7 @@ export const approveByGPT = async (jobs: Job[]): Promise<string> => {
           { approvedByGPT: "no" },
           {
             where: {
-              id: job.id,
+              id: job.dataValues.id,
             },
           }
         );
@@ -269,7 +253,7 @@ export const approveByGPT = async (jobs: Job[]): Promise<string> => {
     const jobDescription = job.dataValues.JobDescription?.dataValues?.description || null;
     // console.log("🚀 ~ approveByGPT ~ jobDescription:", jobDescription)
     if (!jobDescription) {
-      console.log("🚀 ~ approveByGPT ~ job:", job.id);
+      console.log("🚀 ~ approveByGPT ~ job:", job.dataValues.id);
       continue;
     }
     const approved = await approveByAssistantGPT({
@@ -282,7 +266,7 @@ export const approveByGPT = async (jobs: Job[]): Promise<string> => {
         { approvedByGPT: approved },
         {
           where: {
-            id: job.id,
+            id: job.dataValues.id,
           },
         }
       );
@@ -294,14 +278,12 @@ export const approveByGPT = async (jobs: Job[]): Promise<string> => {
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
 
-export const approveByFormula = async (
-  jobs: Job[]
-): Promise<string> => {
+export const approveByFormula = async (jobs: Job[]): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
     const today = new Date();
     const postDate = new Date(job.dataValues.postDate);
-    const shouldRejectByPostDate = today - postDate > 7 * 24 * 60 * 60 * 1000;
+    const shouldRejectByPostDate = today.getTime() - postDate.getTime() > 7 * 24 * 60 * 60 * 1000;
 
     if (shouldRejectByPostDate) {
       console.log("🚀 ~ approveByFormula ~ shouldRejectByPostDate:", shouldRejectByPostDate);
@@ -310,7 +292,7 @@ export const approveByFormula = async (
           { approvedByFormula: "no" },
           {
             where: {
-              id: job.id,
+              id: job.dataValues.id,
             },
           }
         );
@@ -331,7 +313,7 @@ export const approveByFormula = async (
           { approvedByFormula: approved ? "yes" : "no" },
           {
             where: {
-              id: job.id,
+              id: job.dataValues.id,
             },
           }
         );
@@ -344,32 +326,30 @@ export const approveByFormula = async (
   return `Jobs approved: ${jobsApproved} out of ${jobs.length}`;
 };
 
-export const filterByJobTitle = async (
-  jobs: Job[]
-): Promise<string> => {
+export const filterByJobTitle = async (jobs: Job[]): Promise<string> => {
   let jobsApproved = 0;
   for (const job of jobs) {
-    if (job.approvedByFormula === "yes") {
+    if (job.dataValues.approvedByFormula === "yes") {
       jobsApproved++;
       continue;
     }
-    if (job.approvedByFormula === "no") {
+    if (job.dataValues.approvedByFormula === "no") {
       continue;
     }
     const approved =
-      !shouldExcludeIftitle.test(job.title) &&
-      !nonLatinPattern.test(job.title) &&
-      !excludeDotNet.test(job.title) &&
-      // !excludeCs.test(job.title) &&
-      !excludeCSharp.test(job.title) &&
-      !excludeCPlusPlus.test(job.title) &&
-      shouldHaveInTitle.test(job.title);
+      !shouldExcludeIftitle.test(job.dataValues.title) &&
+      !nonLatinPattern.test(job.dataValues.title) &&
+      !excludeDotNet.test(job.dataValues.title) &&
+      // !excludeCs.test(job.dataValues.title) &&
+      !excludeCSharp.test(job.dataValues.title) &&
+      !excludeCPlusPlus.test(job.dataValues.title) &&
+      shouldHaveInTitle.test(job.dataValues.title);
     try {
       await Job.update(
         { approvedByFormula: approved ? "yes" : "no" },
         {
           where: {
-            id: job.id,
+            id: job.dataValues.id,
           },
         }
       );
@@ -382,10 +362,7 @@ export const filterByJobTitle = async (
 };
 
 // Add keyword to job instance getting job with job id
-export const addKeywordToJob = async (
-  jobId: string,
-  keyword: string
-): Promise<Job | null> => {
+export const addKeywordToJob = async (jobId: string, keyword: string): Promise<Job | null> => {
   const job = await Job.findByPk(jobId);
   const [newKeyword] = await Keyword.findOrCreate({
     where: {

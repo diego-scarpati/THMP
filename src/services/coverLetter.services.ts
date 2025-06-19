@@ -1,7 +1,6 @@
 import { CoverLetter } from "../models/index";
-import { CoverLetterAttributes } from "../utils/types";
 
-export const getAllCoverLetters = async (): Promise<CoverLetterAttributes[]> => {
+export const getAllCoverLetters = async (): Promise<CoverLetter[] | undefined> => {
   try {
     const coverLetters = await CoverLetter.findAll();
     return coverLetters;
@@ -10,9 +9,7 @@ export const getAllCoverLetters = async (): Promise<CoverLetterAttributes[]> => 
   }
 };
 
-export const getCoverLetterById = async (
-  id: string
-): Promise<CoverLetterAttributes | null> => {
+export const getCoverLetterById = async (id: string): Promise<CoverLetter | undefined | null> => {
   try {
     const coverLetter = await CoverLetter.findByPk(id);
     return coverLetter;
@@ -22,10 +19,10 @@ export const getCoverLetterById = async (
 };
 
 export const createCoverLetter = async (
-  coverLetter: CoverLetterAttributes
-): Promise<CoverLetterAttributes | null> => {
+  coverLetterData: any
+): Promise<CoverLetter | undefined | null> => {
   try {
-    const newCoverLetter = await CoverLetter.create(coverLetter);
+    const newCoverLetter = await CoverLetter.create(coverLetterData);
     return newCoverLetter;
   } catch (error) {
     console.log("🚀 ~ createCoverLetter ~ error:", error);

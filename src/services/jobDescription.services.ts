@@ -1,11 +1,10 @@
 import { fetchJobDetails } from "../linkedin_api/index";
 import { JobDescription } from "../models/index";
-import { JobDescriptionAttributes, JobAttributes } from "../utils/types";
+import { JobAttributes } from "../utils/types";
 import * as jobServices from "../services/job.services";
-// import { acceptByFormula } from "../utils/pythonFunctions.cjs";
 import shouldAcceptJob from "../utils/approveByFormula";
 
-export const getAllJobDescriptions = async (): Promise<JobDescriptionAttributes[]> => {
+export const getAllJobDescriptions = async (): Promise<undefined | JobDescription[]> => {
   try {
     const jobDescriptions = await JobDescription.findAll();
     return jobDescriptions;
@@ -16,7 +15,7 @@ export const getAllJobDescriptions = async (): Promise<JobDescriptionAttributes[
 
 export const getJobDescriptionById = async (
   id: string
-): Promise<JobDescriptionAttributes | null> => {
+): Promise<undefined | JobDescription | null> => {
   try {
     const jobDescription = await JobDescription.findByPk(id);
     return jobDescription;
@@ -26,13 +25,13 @@ export const getJobDescriptionById = async (
 };
 
 export const createJobDescription = async (
-  jobDescription: JobDescriptionAttributes
-): Promise<JobDescriptionAttributes | null> => {
+  jobDescription: JobDescription
+): Promise<undefined | JobDescription | null> => {
   try {
     const newJobDescription = await JobDescription.create({
-      id: jobDescription.id,
-      state: jobDescription.state,
-      description: jobDescription.description,
+      id: jobDescription.dataValues.id,
+      state: jobDescription.dataValues.state,
+      description: jobDescription.dataValues.description,
     });
     return newJobDescription;
   } catch (error) {
@@ -42,7 +41,7 @@ export const createJobDescription = async (
 
 export const loopAndCreateJobDescription = async (
   jobsToCreateDescriptions: JobAttributes[]
-): Promise<string | null> => {
+): Promise<undefined | string | null> => {
   try {
     let jobDescriptionsCreated = 0;
     let jobAlreadyCreated = 0;

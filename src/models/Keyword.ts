@@ -1,19 +1,25 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize, DataTypes, Model } from "sequelize";
 import db from "../db/connection";
 
-const Keyword = db.define("Keyword", {
-  id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    unique: true,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  keyword: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-});
+export default class Keyword extends Model {}
 
-export default Keyword;
+Keyword.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    keyword: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+  },
+  {
+    sequelize: db,
+    tableName: "keywords",
+  }
+);

@@ -1,7 +1,6 @@
 import { Keyword } from "../models/index";
-import { KeywordAttributes } from "../utils/types";
 
-export const getAllKeywords = async (): Promise<KeywordAttributes[]> => {
+export const getAllKeywords = async (): Promise<undefined | Keyword[]> => {
   try {
     const keywords = await Keyword.findAll();
     return keywords;
@@ -10,9 +9,7 @@ export const getAllKeywords = async (): Promise<KeywordAttributes[]> => {
   }
 };
 
-export const getKeywordById = async (
-  id: number
-): Promise<KeywordAttributes | null> => {
+export const getKeywordById = async (id: number): Promise<undefined | Keyword | null> => {
   try {
     const keyword = await Keyword.findByPk(id);
     return keyword;
@@ -21,11 +18,9 @@ export const getKeywordById = async (
   }
 };
 
-export const createKeyword = async (
-  keyword: KeywordAttributes
-): Promise<KeywordAttributes | null> => {
+export const createKeyword = async (keywordData: any): Promise<undefined | Keyword | null> => {
   try {
-    const newKeyword = await Keyword.create(keyword);
+    const newKeyword = await Keyword.create(keywordData);
     return newKeyword;
   } catch (error) {
     console.log("🚀 ~ createKeyword ~ error:", error);
