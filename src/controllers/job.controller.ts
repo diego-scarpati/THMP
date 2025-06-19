@@ -62,7 +62,7 @@ export const getAllJobs = async (req, res) => {
 
   console.log("🚀 ~ getAllJobs ~ options.postDate === 'desc':", options.postDate === "desc");
   // Should separate the where clause from the include, limit, page, offset and order clauses
-  const whereClause = {
+  const whereClause: any = {
     where: {},
     include: [],
     order: [
@@ -76,7 +76,7 @@ export const getAllJobs = async (req, res) => {
     offset: (page - 1) * (options.limit ? parseInt(options.limit) : 50),
   };
 
-  if (whereClause.order.includes(undefined)) {
+  if ((whereClause.order as any[]).includes(undefined)) {
     delete whereClause.order;
   }
 
@@ -143,8 +143,10 @@ export const getAllJobs = async (req, res) => {
 
   try {
     const jobs = await jobServices.getAllJobs(whereClause);
+    if (!jobs) {
+      return res.status(404).json({ message: "No jobs found" });
+    }
 
-    // console.log("🚀 ~ getAllJobs ~ jobs:", jobs)
     const totalPages = Math.ceil(jobs.total / whereClause.limit);
 
     return res.status(200).json({
@@ -244,7 +246,7 @@ export const searchAndCreateJobs = async (req, res) => {
       datePosted,
       sort,
     });
-    if (!jobs || jobs.length === 0) {
+    if (!jobs || jobs.data.length === 0) {
       console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No jobs found");
       return res.status(404).send("No jobs found");
     }
@@ -271,9 +273,13 @@ export const searchAndCreateJobs = async (req, res) => {
       } catch (error) {
         console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
       }
-      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords);
-      returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
-      if (description !== "" && returnedJob.createdJob) {
+    const returnedJob = await jobServices.createJob(
+      job,
+      approvedByFormula,
+      keywords
+    );
+    returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+    if (description !== "" && returnedJob?.createdJob) {
         try {
           const returnedJobDescription = await jobDescriptionServices.createJobDescription({
             id: job.id,
@@ -318,6 +324,9 @@ export const updateApprovedByDate = async (req, res) => {
         easyApply: "pending",
       },
     });
+    if (!jobs) {
+      return res.status(404).send("No jobs found");
+    }
     console.log("🚀 ~ updateApprovedByDate ~ jobs:", jobs.total);
     if (jobs.total === 0) {
       return res.status(404).send("No jobs found");
@@ -352,8 +361,11 @@ export const approveByGPT = async (req, res) => {
     offset: 0,
   };
   const jobs = await jobServices.getAllJobs(whereClause);
+  if (!jobs) {
+    return res.status(404).send("No jobs found");
+  }
   console.log("🚀 ~ approveByGPT ~ jobs:", jobs.total);
-  if (jobs.length === 0) {
+  if (jobs.data.length === 0) {
     return res.status(404).send("No jobs found");
   }
   try {
@@ -384,7 +396,7 @@ export const approveByFormula = async (req, res) => {
     offset: 0,
   };
   const jobs = await jobServices.getAllJobs(whereClause);
-  if (jobs.length === 0) {
+  if (!jobs || jobs.data.length === 0) {
     return res.status(404).send("No jobs found");
   }
   try {
@@ -400,7 +412,7 @@ export const filterByJobTitle = async (req, res) => {
     approvedByFormula: "pending",
   });
   // console.log("🚀 ~ filterByJobTitle ~ jobs:", jobs);
-  if (jobs.length === 0) {
+  if (!jobs || jobs.data.length === 0) {
     return res.status(404).send("No jobs found");
   }
   // return res.status(200).json(jobs);
@@ -446,7 +458,7 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         sort,
       });
       // If no jobs found, continue to the next keyword
-      if (!jobs || jobs.length === 0) {
+      if (!jobs || jobs.data.length === 0) {
         console.log("🚀 ~ searchAndCreateJobs ~ jobs:", "No jobs found");
         continue;
       }
@@ -476,16 +488,22 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         try {
           description = await fetchJob(job.url);
           if (description !== "") {
-            approvedByFormula = (await shouldAcceptJob(description)) ? "yes" : "no";
+            approvedByFormula = (await shouldAcceptJob({ description }, 4))
+              ? "yes"
+              : "no";
           }
         } catch (error) {
           console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
         }
 
         // Check if the job already exists in the DB
-        const returnedJob = await jobServices.createJob(job, approvedByFormula, keyword.keyword);
-        returnedJob.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
-        if (description !== "" && returnedJob.createdJob) {
+        const returnedJob = await jobServices.createJob(
+          job,
+          approvedByFormula,
+          keyword.keyword
+        );
+        returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
+        if (description !== "" && returnedJob?.createdJob) {
           try {
             const returnedJobDescription = await jobDescriptionServices.createJobDescription({
               id: job.id,
