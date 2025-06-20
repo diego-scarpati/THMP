@@ -14,7 +14,7 @@ export const getJobDetails = async (jobId: string): Promise<any> => {
   const options = {
     method: "GET",
     headers: {
-      "x-rapidapi-key": LINKEDIN_API_KEY,
+      "x-rapidapi-key": LINKEDIN_API_KEY as string,
       "x-rapidapi-host": "linkedin-api8.p.rapidapi.com",
     },
   };

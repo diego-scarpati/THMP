@@ -35,3 +35,22 @@ export interface KeywordAttributes {
   id: number;
   keyword: string;
 }
+
+export interface LinkedInJob {
+  id: string;
+  title: string;
+  url: string;
+  referenceId: string;
+  posterId: string;
+  company: {
+    id: number | null | undefined;
+    name: string | null | undefined;
+    logo: string | null | undefined;
+    url: string | null | undefined;
+    staffCountRange: Record<string, unknown> | null | undefined;
+    headquarter: Record<string, unknown> | null | undefined;
+  };
+  location: string;
+  postAt: string;
+  postedTimestamp: number;
+}

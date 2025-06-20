@@ -53,13 +53,15 @@ interface Job {
   description: string;
 }
 
-export const approveByAssistantGPT = async (
-  job: Job
-): Promise<string | undefined> => {
+export const approveByAssistantGPT = async (job: Job): Promise<string | undefined> => {
   const jobDescription = job.description;
   const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
   });
+
+  if (!GPT_APPROVAL_V1) {
+    throw new Error("GPT_APPROVAL_V1 environment variable is not defined");
+  }
 
   try {
     // Create a thread
@@ -80,7 +82,10 @@ export const approveByAssistantGPT = async (
     let message;
     for await (const event of stream) {
       if (event.event !== "thread.message.completed") continue;
-      message = event.data.content[0].text.value;
+      const content = event.data.content[0];
+      if (content.type === "text") {
+        message = content.text.value;
+      }
     }
     message = message === "true" ? "yes" : "no";
     return message;
@@ -108,8 +113,8 @@ const retrieveAllRuns = async (threadId: string): Promise<void> => {
   try {
     const runs = await openai.beta.threads.runs.list(threadId);
     console.log("🚀 ~ retrieveAllRuns ~ runs:", runs);
-    console.log("🚀 ~ retrieveAllRuns ~ runs.response:", runs.response);
-    console.log("🚀 ~ retrieveAllRuns ~ runs.body.data:", runs.body.data);
+    // console.log("🚀 ~ retrieveAllRuns ~ runs.response:", runs.response);
+    // console.log("🚀 ~ retrieveAllRuns ~ runs.body.data:", runs.body.data);
   } catch (error) {
     console.log("🚀 ~ retrieveAllRuns ~ error:", error);
   }

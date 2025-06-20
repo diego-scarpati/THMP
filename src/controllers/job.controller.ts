@@ -6,6 +6,7 @@ import { saveToFile } from "../utils/pythonFunctions";
 import { Job, JobDescription, Keyword } from "../models/index";
 import fetchJob from "../utils/fetchingJob";
 import shouldAcceptJob from "../utils/approveByFormula";
+import { JobAttributes, JobDescriptionAttributes, LinkedInJob } from "../utils/types";
 
 const modelOptions = [
   // Model parameters
@@ -248,8 +249,8 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobsThatAlreadyExist = 0;
     let jobDescriptionsCreated = 0;
 
-    for (const job of jobs.data as Job[]) {
-      const existingJob = await jobServices.getJobById(job.dataValues.id);
+    for (const job of jobs.data as LinkedInJob[]) {
+      const existingJob = await jobServices.getJobById(job.id);
       if (existingJob) {
         jobsThatAlreadyExist++;
         continue;
@@ -258,7 +259,7 @@ export const searchAndCreateJobs = async (req, res) => {
       let description = "";
 
       try {
-        description = await fetchJob(job.dataValues.url);
+        description = await fetchJob(job.url);
         if (description !== "") {
           console.log("🚀 ~ Description exists");
           approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
@@ -271,8 +272,8 @@ export const searchAndCreateJobs = async (req, res) => {
       returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
       if (description !== "" && returnedJob?.createdJob) {
         try {
-          const jobDescriptionData: JobDescription = {
-            id: job.dataValues.id,
+          const jobDescriptionData: JobDescriptionAttributes = {
+            id: job.id,
             state: "LISTED",
             description,
           };
@@ -457,28 +458,28 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
       if (jobs.total) searchedJobs += jobs.total;
 
       // Loop through each job and create it
-      for (const job of jobs.data as Job[]) {
+      for (const job of jobs.data as LinkedInJob[]) {
         // Check if job has already been looped in other keyword
-        if (idSet.has(job.dataValues.id)) {
+        if (idSet.has(job.id)) {
           jobsLoopedInOtherKeywords++;
           // Shoudl add the keyword to the job
-          jobServices.addKeywordToJob(job.dataValues.id, keyword.dataValues.keyword);
+          jobServices.addKeywordToJob(job.id, keyword.dataValues.keyword);
           continue;
         }
 
         // Add job id to the set
-        idSet.add(job.dataValues.id);
+        idSet.add(job.id);
         let approvedByFormula = "pending";
         let description = "";
 
-        const jobExists = await jobServices.getJobById(job.dataValues.id);
+        const jobExists = await jobServices.getJobById(job.id);
         if (jobExists) {
           jobsThatAlreadyExist++;
           continue;
         }
 
         try {
-          description = await fetchJob(job.dataValues.url);
+          description = await fetchJob(job.url);
           if (description !== "") {
             approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
           }
@@ -496,10 +497,10 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         if (description !== "" && returnedJob?.createdJob) {
           try {
             const returnedJobDescription = await jobDescriptionServices.createJobDescription({
-              id: job.dataValues.id,
+              id: job.id,
               description,
               state: "LISTED",
-            });
+            } as JobDescriptionAttributes);
             if (returnedJobDescription) {
               jobDescriptionsCreated++;
             }

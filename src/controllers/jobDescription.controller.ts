@@ -1,6 +1,6 @@
 import * as jobDescriptionServices from "../services/jobDescription.services";
 import * as jobServices from "../services/job.services";
-import { JobDescriptionAttributes } from "../utils/types";
+import { JobAttributes, JobDescriptionAttributes } from "../utils/types";
 
 export const getAllJobDescriptions = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ export const getJobDescriptionById = async (req, res) => {
 };
 
 export const createJobDescription = async (req, res) => {
-  const { jobDescription } = req.body as { jobDescription: JobDescriptionAttributes };
+  const { jobDescription } = req.body;
   try {
     const newJobDescription = await jobDescriptionServices.createJobDescription(jobDescription);
     return res.status(201).json(newJobDescription);
@@ -39,9 +39,13 @@ export const loopAndCreateJobDescription = async (req, res) => {
         easyApply: "pending",
       },
     });
-    const newJobDescriptions = await jobDescriptionServices.loopAndCreateJobDescription(
-      jobsToCreateDescriptions.data
+    if (!jobsToCreateDescriptions) {
+      return res.status(404).send("No jobs found");
+    }
+    const jobsData: JobAttributes[] = jobsToCreateDescriptions.data.map(
+      (job) => job.dataValues as JobAttributes
     );
+    const newJobDescriptions = await jobDescriptionServices.loopAndCreateJobDescription(jobsData);
     return res.status(201).send(newJobDescriptions);
   } catch (error) {
     console.log("🚀 ~ createJobDescription ~ error:", error);

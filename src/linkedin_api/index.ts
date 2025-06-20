@@ -1,6 +1,5 @@
 import {
   excludeCPlusPlus,
-  excludeCs,
   excludeCSharp,
   excludeDotNet,
   nonLatinPattern,
@@ -9,10 +8,11 @@ import {
 } from "../utils/regex";
 import { getAllJobs } from "./getAllJobs";
 import { getJobDetails } from "./getJobDetails";
+import { LinkedInJob } from "../utils/types";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
-  let accumulatedData = []; // Store all data here
+  let accumulatedData: LinkedInJob[] = []; // Store all data here
   let page = 1; // Start from page 1
   const pageSize = 50; // Define the page size (maximum length of data array)
   let stop = 0; // No more than 2 pages (100 jobs)
@@ -66,12 +66,15 @@ export const fetchAllJobs = async (options) => {
 
 export const filterJobs = async (options) => {
   const jobs = await fetchAllJobs(options);
-  if (jobs.success && jobs?.total === 0) {
+  if (jobs && jobs?.total === 0) {
+    console.log("🚀 ~ filterJobs ~ jobs:", "No jobs found");
+    return null;
+  }
+  if (!jobs || !jobs.accumulatedData || jobs.accumulatedData.length === 0) {
     console.log("🚀 ~ filterJobs ~ jobs:", "No jobs found");
     return null;
   }
 
-  // For the searchAndCreate route, we will filter the jobs to exclude those that have the word "intern" in the title, those that have non-Latin characters, and those that do not have the word "engineer" in the title.
   const filteredJobs = jobs.accumulatedData.filter((job) => {
     return (
       !shouldExcludeIftitle.test(job.title) &&

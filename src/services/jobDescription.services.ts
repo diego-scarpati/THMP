@@ -1,6 +1,6 @@
 import { fetchJobDetails } from "../linkedin_api/index";
 import { JobDescription } from "../models/index";
-import { JobAttributes } from "../utils/types";
+import { JobAttributes, JobDescriptionAttributes } from "../utils/types";
 import * as jobServices from "../services/job.services";
 import shouldAcceptJob from "../utils/approveByFormula";
 
@@ -25,13 +25,13 @@ export const getJobDescriptionById = async (
 };
 
 export const createJobDescription = async (
-  jobDescription: JobDescription
+  jobDescription: JobDescriptionAttributes
 ): Promise<undefined | JobDescription | null> => {
   try {
     const newJobDescription = await JobDescription.create({
-      id: jobDescription.dataValues.id,
-      state: jobDescription.dataValues.state,
-      description: jobDescription.dataValues.description,
+      id: jobDescription.id,
+      state: jobDescription.state,
+      description: jobDescription.description,
     });
     return newJobDescription;
   } catch (error) {

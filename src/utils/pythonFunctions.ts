@@ -263,7 +263,7 @@ const rejectingSkills = [
 
 const saveToFile = async (jobs: unknown): Promise<string | undefined> => {
   let options = {
-    mode: "text",
+    mode: "text" as const,
     pythonOptions: ["-u"],
     scriptPath: path.join(__dirname),
     args: [JSON.stringify(jobs)],

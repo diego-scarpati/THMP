@@ -227,13 +227,13 @@ const shouldAcceptJob = (jobData: JobData, candidateYearsExperience: number): bo
     return false;
   }
 
-  if (checkSkills(jobData.skills) === false) {
-    console.log(
-      "🚀 ~ checkSkills(jobData.skills) === false:",
-      checkSkills(jobData.skills) === false
-    );
-    return false;
-  }
+  // if (checkSkills(jobData.skills) === false) {
+  //   console.log(
+  //     "🚀 ~ checkSkills(jobData.skills) === false:",
+  //     checkSkills(jobData.skills) === false
+  //   );
+  //   return false;
+  // }
 
   // If all checks pass, accept the job
 
