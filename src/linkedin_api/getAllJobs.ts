@@ -58,6 +58,7 @@ export const getAllJobs = async (getAllJobsParamObject: GetAllJobsParams): Promi
     });
     return urlWithParams;
   };
+  console.log("🚀 ~ urlWithParams ~ urlWithParams:", urlWithParams);
   const options = {
     method: "GET",
     headers: {

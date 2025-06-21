@@ -66,6 +66,6 @@ Job.init(
   },
   {
     sequelize: db,
-    modelName: "Job",
+    tableName: "job",
   }
 );

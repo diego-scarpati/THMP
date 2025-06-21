@@ -234,6 +234,10 @@ export const getAllRejected = async (req, res) => {
 export const searchAndCreateJobs = async (req, res) => {
   // const { jobInfo, keywords } = req.body;
   const { keywords, locationId, datePosted, sort } = req.query;
+  console.log("🚀 ~ searchAndCreateJobs ~ keywords:", keywords);
+  console.log("🚀 ~ searchAndCreateJobs ~ sort:", sort);
+  console.log("🚀 ~ searchAndCreateJobs ~ datePosted:", datePosted);
+  console.log("🚀 ~ searchAndCreateJobs ~ locationId:", locationId);
   try {
     const jobs = await linkedInApi.filterJobs({
       keywords,

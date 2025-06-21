@@ -12,6 +12,7 @@ import { LinkedInJob } from "../utils/types";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {
+  console.log("🚀 ~ fetchAllJobs ~ options:", options);
   let accumulatedData: LinkedInJob[] = []; // Store all data here
   let page = 1; // Start from page 1
   const pageSize = 50; // Define the page size (maximum length of data array)
@@ -66,6 +67,7 @@ export const fetchAllJobs = async (options) => {
 
 export const filterJobs = async (options) => {
   const jobs = await fetchAllJobs(options);
+  console.log("🚀 ~ filterJobs ~ jobs:", jobs);
   if (jobs && jobs?.total === 0) {
     console.log("🚀 ~ filterJobs ~ jobs:", "No jobs found");
     return null;

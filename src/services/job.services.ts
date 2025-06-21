@@ -143,6 +143,9 @@ export const createJob = async (
   approvedByFormula: string,
   keyword: string
 ): Promise<{ newJob: Job; createdJob: boolean } | undefined> => {
+  console.log("🚀 ~ keyword:", keyword);
+  console.log("🚀 ~ approvedByFormula:", approvedByFormula);
+  console.log("🚀 ~ job:", job);
   try {
     const [newKeyword] = await Keyword.findOrCreate({
       where: {
