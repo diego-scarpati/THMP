@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
-import db from "../db/connection";
+import db from "../db/connection.js";
 
 export default class Job extends Model {}
 
@@ -63,9 +63,13 @@ Job.init(
       values: ["yes", "no", "pending"],
       defaultValue: "pending",
     },
+    postedBy: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     sequelize: db,
-    tableName: "job",
+    tableName: "jobs",
   }
 );

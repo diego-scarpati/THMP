@@ -1,25 +1,24 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
 import db from "../db/connection.js";
 
-export default class Keyword extends Model {}
+export default class Exclusion extends Model {}
 
-Keyword.init(
+Exclusion.init(
   {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
       primaryKey: true,
+      unique: true,
       autoIncrement: true,
     },
-    keyword: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
   },
   {
     sequelize: db,
-    tableName: "keywords",
+    tableName: "exclusions",
   }
 );

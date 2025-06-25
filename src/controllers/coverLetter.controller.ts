@@ -1,5 +1,5 @@
-import * as coverLetterService from "../services/coverLetter.services";
-import { CoverLetterAttributes } from "../utils/types";
+import * as coverLetterService from "../services/coverLetter.services.js";
+import { CoverLetterAttributes } from "../utils/types.js";
 
 export const getAllCoverLetters = async (req, res) => {
   try {

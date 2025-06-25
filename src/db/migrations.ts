@@ -1,12 +1,12 @@
-import { Sequelize } from "sequelize";
-import db from "./connection";
+import { Sequelize, DataTypes } from "sequelize";
+import db from "./connection.js";
 
 const updateColumnDataType = async () => {
   const queryInterface = db.getQueryInterface();
 
   try {
     await queryInterface.changeColumn("JobDescriptions", "skills", {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     });
 
@@ -16,4 +16,18 @@ const updateColumnDataType = async () => {
   }
 };
 
-updateColumnDataType();
+const addColumnToTable = async () => {
+  const queryInterface = db.getQueryInterface();
+  try {
+    await queryInterface.addColumn("Jobs", "postedBy", {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "LinkedIn",
+    });
+  } catch (error) {
+    console.error("Error adding column:", error);
+  }
+};
+
+addColumnToTable();
+// updateColumnDataType();

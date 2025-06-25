@@ -1,8 +1,8 @@
-import { fetchJobDetails } from "../linkedin_api/index";
-import { JobDescription } from "../models/index";
-import { JobAttributes, JobDescriptionAttributes } from "../utils/types";
-import * as jobServices from "../services/job.services";
-import shouldAcceptJob from "../utils/approveByFormula";
+import { fetchJobDetails } from "../linkedin_api/index.js";
+import { JobDescription } from "../models/index.js";
+import { JobAttributes, JobDescriptionAttributes } from "../utils/types.js";
+import * as jobServices from "../services/job.services.js";
+import shouldAcceptJob from "../utils/approveByFormula.js";
 
 export const getAllJobDescriptions = async (): Promise<undefined | JobDescription[]> => {
   try {

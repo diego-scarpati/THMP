@@ -1,6 +1,6 @@
-import * as jobDescriptionServices from "../services/jobDescription.services";
-import * as jobServices from "../services/job.services";
-import { JobAttributes, JobDescriptionAttributes } from "../utils/types";
+import * as jobDescriptionServices from "../services/jobDescription.services.js";
+import * as jobServices from "../services/job.services.js";
+import { JobAttributes, JobDescriptionAttributes } from "../utils/types.js";
 
 export const getAllJobDescriptions = async (req, res) => {
   try {

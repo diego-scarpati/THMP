@@ -1,4 +1,4 @@
-import { Keyword } from "../models/index";
+import { Keyword } from "../models/index.js";
 
 export const getAllKeywords = async (): Promise<undefined | Keyword[]> => {
   try {

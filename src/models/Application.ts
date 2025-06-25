@@ -1,25 +1,25 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
 import db from "../db/connection.js";
 
-export default class Keyword extends Model {}
+export default class Application extends Model {}
 
-Keyword.init(
+Application.init(
   {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
       primaryKey: true,
+      unique: true,
       autoIncrement: true,
     },
-    keyword: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
+    approvedByFormula: {
+      type: DataTypes.ENUM,
+      values: ["yes", "no"],
+      defaultValue: "no",
     },
   },
   {
     sequelize: db,
-    tableName: "keywords",
+    tableName: "applications",
   }
 );

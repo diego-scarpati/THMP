@@ -1,5 +1,5 @@
 import express from "express";
-import * as coverLetterController from "../controllers/coverLetter.controller";
+import * as coverLetterController from "../controllers/coverLetter.controller.js";
 
 const coverLetterRoutes = express.Router();
 

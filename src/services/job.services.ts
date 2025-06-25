@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import { CoverLetter, Job, JobDescription, Keyword } from "../models/index";
-import { JobAttributes } from "../utils/types";
+import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
+import { JobAttributes } from "../utils/types.js";
 import {
   nonLatinPattern,
   shouldExcludeIftitle,
@@ -8,9 +8,9 @@ import {
   excludeDotNet,
   excludeCSharp,
   excludeCPlusPlus,
-} from "../utils/regex";
-import { approveByAssistantGPT } from "../utils/assistants";
-import shouldAcceptJob from "../utils/approveByFormula";
+} from "../utils/regex.js";
+import { approveByAssistantGPT } from "../utils/assistants.js";
+import shouldAcceptJob from "../utils/approveByFormula.js";
 
 export const getAllJobs = async (
   whereClause: any

@@ -1,12 +1,12 @@
-import * as jobServices from "../services/job.services";
-import * as jobDescriptionServices from "../services/jobDescription.services";
-import * as keywordServices from "../services/keyword.services";
-import * as linkedInApi from "../linkedin_api/index";
-import { saveToFile } from "../utils/pythonFunctions";
-import { Job, JobDescription, Keyword } from "../models/index";
-import fetchJob from "../utils/fetchingJob";
-import shouldAcceptJob from "../utils/approveByFormula";
-import { JobAttributes, JobDescriptionAttributes, LinkedInJob } from "../utils/types";
+import * as jobServices from "../services/job.services.js";
+import * as jobDescriptionServices from "../services/jobDescription.services.js";
+import * as keywordServices from "../services/keyword.services.js";
+import * as linkedInApi from "../linkedin_api/index.js";
+import { saveToFile } from "../utils/pythonFunctions.js";
+import { Job, JobDescription, Keyword } from "../models/index.js";
+import fetchJob from "../utils/fetchingJob.js";
+import shouldAcceptJob from "../utils/approveByFormula.js";
+import { JobAttributes, JobDescriptionAttributes, LinkedInJob } from "../utils/types.js";
 
 const modelOptions = [
   // Model parameters

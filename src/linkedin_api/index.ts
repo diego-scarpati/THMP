@@ -5,10 +5,10 @@ import {
   nonLatinPattern,
   shouldExcludeIftitle,
   shouldHaveInTitle,
-} from "../utils/regex";
-import { getAllJobs } from "./getAllJobs";
-import { getJobDetails } from "./getJobDetails";
-import { LinkedInJob } from "../utils/types";
+} from "../utils/regex.js";
+import { getAllJobs } from "./getAllJobs.js";
+import { getJobDetails } from "./getJobDetails.js";
+import { LinkedInJob } from "../utils/types.js";
 
 // The function will have to run as many times as the number of jobs "total" divided by 25. To do this,
 export const fetchAllJobs = async (options) => {

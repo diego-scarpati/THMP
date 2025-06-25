@@ -1,5 +1,5 @@
 import express from "express";
-import * as jobDescriptionController from "../controllers/jobDescription.controller";
+import * as jobDescriptionController from "../controllers/jobDescription.controller.js";
 
 const jobDescriptionRoutes = express.Router();
 

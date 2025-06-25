@@ -15,10 +15,18 @@ import re
 def scrape_seek_jobs(base_url):
     # Set up headless Chrome browser
     options = Options()
-    options.headless = True  # Run without opening a browser window
+    ## Run without a GUI/browser window
+    # options.headless = True 
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+
+    # To update the ChromeDriver got to finder, press Command+Shift+G, and paste in:
+    # /usr/local/bin/chromedriver
+    # And then run the following commands in terminal:
+    # xattr -d com.apple.quarantine /usr/local/bin/chromedriver
+    # chmod +x /usr/local/bin/chromedriver
 
     # Specify path to ChromeDriver (update this to your ChromeDriver location)
     service = Service('/usr/local/bin/chromedriver')  # Replace with actual path
