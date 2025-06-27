@@ -1,6 +1,4 @@
-const candidateSkillsJson = require("../assets/diego-scarpati-skills.json") as {
-  skills: string[];
-};
+import candidateSkillsJson from "../assets/diego-scarpati-skills.json" with { type: "json" };
 
 const rejectingSkills = [
   ".Net",

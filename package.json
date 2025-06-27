@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "nodemon",
+    "start": "nodemon --exec 'node --import tsx' src/index.ts",
     "schemas:openapi": "swagger-jsdoc -d src/routes/definition.yaml src/routes/**/*.js src/routes/**/*.yaml \"src/routes/!(definition).yaml\" -o src/schemas/openapi.json",
     "prepare": "husky install",
     "build": "tsc"
@@ -54,8 +54,9 @@
     "prettier": "^3.5.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^8.6.0",
-    "ts-node": "^10.9.2"
+    "typescript-eslint": "^8.6.0"
   }
 }

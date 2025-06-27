@@ -12,9 +12,9 @@ import UserExclusion from "./UserExclusion.js";
 
 Job.hasOne(JobDescription, { foreignKey: "id" });
 JobDescription.belongsTo(Job, { foreignKey: "id" });
-// Correcting Job and JobDescription
-// Job.hasOne(JobDescription, { foreignKey: 'jobDescriptionId' }); // jobId is the foreign key in JobDescription
-// JobDescription.belongsTo(Job, { foreignKey: 'jobId' });
+
+Job.hasOne(CoverLetter, { foreignKey: "id" });
+CoverLetter.belongsTo(Job, { foreignKey: "id" });
 
 Job.belongsToMany(Keyword, { through: JobKeyword, foreignKey: "jobId", otherKey: "keywordId" });
 Keyword.belongsToMany(Job, { through: JobKeyword, foreignKey: "keywordId", otherKey: "jobId" });
@@ -25,20 +25,15 @@ Job.belongsToMany(User, { through: UserJob, foreignKey: "jobId", otherKey: "user
 User.belongsToMany(Skill, { through: UserSkill, foreignKey: "userId", otherKey: "skillId" });
 Skill.belongsToMany(User, { through: UserSkill, foreignKey: "skillId", otherKey: "userId" });
 
-User.belongsToMany(Exclusion, { through: UserExclusion, foreignKey: "userId", otherKey: "exclusionId" });
-Exclusion.belongsToMany(User, { through: UserExclusion, foreignKey: "exclusionId", otherKey: "userId" });
+User.belongsToMany(Exclusion, {
+  through: UserExclusion,
+  foreignKey: "userId",
+  otherKey: "exclusionId",
+});
+Exclusion.belongsToMany(User, {
+  through: UserExclusion,
+  foreignKey: "exclusionId",
+  otherKey: "userId",
+});
 
-Job.hasOne(CoverLetter, { foreignKey: "id" });
-CoverLetter.belongsTo(Job, { foreignKey: "id" });
-// Job.hasOne(CoverLetter, { foreignKey: 'jobId' });
-// CoverLetter.belongsTo(Job, { foreignKey: 'jobId' });
-
-export {
-  Job,
-  JobDescription,
-  CoverLetter,
-  Keyword,
-  User,
-  Skill,
-  Exclusion,
-};
+export { Job, JobDescription, CoverLetter, Keyword, User, Skill, Exclusion };
