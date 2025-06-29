@@ -36,4 +36,16 @@ Exclusion.belongsToMany(User, {
   otherKey: "userId",
 });
 
-export { Job, JobDescription, CoverLetter, Keyword, User, Skill, Exclusion };
+export {
+  Job,
+  JobDescription,
+  CoverLetter,
+  Keyword,
+  User,
+  Skill,
+  Exclusion,
+  JobKeyword,
+  UserJob,
+  UserSkill,
+  UserExclusion,
+};

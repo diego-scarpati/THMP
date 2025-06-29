@@ -11,6 +11,8 @@ import {
 } from "../utils/regex.js";
 import { approveByAssistantGPT } from "../utils/assistants.js";
 import shouldAcceptJob from "../utils/approveByFormula.js";
+import db from "../db/connection.js";
+import * as jobKeywordService from "./jobKeyword.services.js";
 
 export const getAllJobs = async (
   whereClause: any
@@ -141,8 +143,10 @@ export const getAllRejected = async (): Promise<Job[]> => {
 export const createJob = async (
   job: any,
   approvedByFormula: string,
-  keyword: string
+  keyword: string,
+  postedBy: string
 ): Promise<{ newJob: Job; createdJob: boolean } | undefined> => {
+  const transaction = await db.transaction();
   console.log("🚀 ~ keyword:", keyword);
   console.log("🚀 ~ approvedByFormula:", approvedByFormula);
   console.log("🚀 ~ job:", job);
@@ -154,6 +158,7 @@ export const createJob = async (
       defaults: {
         keyword,
       },
+      transaction,
     });
     const [newJob, createdJob] = await Job.findOrCreate({
       where: { id: job.id },
@@ -169,11 +174,20 @@ export const createJob = async (
         postDate: job.postAt || null,
         benefits: job.benefits || null,
         approvedByFormula: approvedByFormula || "pending",
+        postedBy: postedBy || "LinkedIn",
       },
+      transaction,
     });
-    await (newJob as any).addKeyword(newKeyword);
+    console.log("🚀 ~ createdJob:", createdJob);
+    console.log("🚀 ~ newJob:", newJob);
+    if (!newJob || !newJob.dataValues.id) {
+      throw new Error("Job creation failed or job does not exist in DB");
+    }
+    await (newJob as any).addKeyword(newKeyword, { transaction });
+    await transaction.commit();
     return { newJob, createdJob };
   } catch (error) {
+    await transaction.rollback();
     console.log("🚀 ~ createJob ~ error:", error);
   }
 };
@@ -343,7 +357,6 @@ export const filterByJobTitle = async (jobs: Job[]): Promise<string> => {
       !shouldExcludeIftitle.test(job.dataValues.title) &&
       !nonLatinPattern.test(job.dataValues.title) &&
       !excludeDotNet.test(job.dataValues.title) &&
-      // !excludeCs.test(job.dataValues.title) &&
       !excludeCSharp.test(job.dataValues.title) &&
       !excludeCPlusPlus.test(job.dataValues.title) &&
       shouldHaveInTitle.test(job.dataValues.title);
@@ -375,6 +388,6 @@ export const addKeywordToJob = async (jobId: string, keyword: string): Promise<J
       keyword,
     },
   });
-  await (job as any)?.addKeyword(newKeyword);
+  await jobKeywordService.createJobKeyword(jobId, newKeyword.dataValues.id);
   return job;
 };

@@ -234,10 +234,11 @@ export const getAllRejected = async (req, res) => {
 export const searchAndCreateJobs = async (req, res) => {
   // const { jobInfo, keywords } = req.body;
   const { keywords, locationId, datePosted, sort } = req.query;
-  console.log("🚀 ~ searchAndCreateJobs ~ keywords:", keywords);
-  console.log("🚀 ~ searchAndCreateJobs ~ sort:", sort);
-  console.log("🚀 ~ searchAndCreateJobs ~ datePosted:", datePosted);
-  console.log("🚀 ~ searchAndCreateJobs ~ locationId:", locationId);
+  // console.log("🚀 ~ searchAndCreateJobs ~ keywords:", keywords);
+  // console.log("🚀 ~ searchAndCreateJobs ~ sort:", sort);
+  // console.log("🚀 ~ searchAndCreateJobs ~ datePosted:", datePosted);
+  // console.log("🚀 ~ searchAndCreateJobs ~ locationId:", locationId);
+  let postedBy = "LinkedIn";
   try {
     const jobs = await linkedInApi.filterJobs({
       keywords,
@@ -272,7 +273,7 @@ export const searchAndCreateJobs = async (req, res) => {
       } catch (error) {
         console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
       }
-      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords);
+      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords, postedBy);
       returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
       if (description !== "" && returnedJob?.createdJob) {
         try {
@@ -424,6 +425,7 @@ export const filterByJobTitle = async (req, res) => {
 export const searchAndCreateWithAllKeywords = async (req, res) => {
   console.log("🚀 ~ searchAndCreateWithAllKeywords ~ req.query:", req.query);
   const { locationId, datePosted, sort } = req.query;
+  let postedBy = "LinkedIn";
   try {
     // Get all keywords
     const keywords = await keywordServices.getAllKeywords();
@@ -495,7 +497,8 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
         const returnedJob = await jobServices.createJob(
           job,
           approvedByFormula,
-          keyword.dataValues.keyword
+          keyword.dataValues.keyword,
+          postedBy
         );
         returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
         if (description !== "" && returnedJob?.createdJob) {

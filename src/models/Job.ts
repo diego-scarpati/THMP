@@ -66,6 +66,7 @@ Job.init(
     postedBy: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "LinkedIn",
     },
   },
   {

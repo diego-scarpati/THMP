@@ -54,3 +54,13 @@ export interface LinkedInJob {
   postAt: string;
   postedTimestamp: number;
 }
+
+export interface IUser {
+  name: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+export interface IUserAttributes extends IUser {
+  id: number;
+}
