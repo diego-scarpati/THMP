@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as userService from "../services/user.services.js";
-import { IUser, IUserAttributes } from "../utils/types.js";
+import { IUser } from "../utils/types.js";
 import { generateToken } from "../utils/jwt.js";
 
 export const createUser = async (req: Request, res: Response) => {

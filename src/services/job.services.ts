@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, Transaction } from "sequelize";
 import { CoverLetter, Job, JobDescription, Keyword } from "../models/index.js";
 import { JobAttributes } from "../utils/types.js";
 import {
@@ -160,6 +160,7 @@ export const createJob = async (
       },
       transaction,
     });
+    console.log("🚀 ~ newKeyword:", newKeyword);
     const [newJob, createdJob] = await Job.findOrCreate({
       where: { id: job.id },
       defaults: {
@@ -183,7 +184,8 @@ export const createJob = async (
     if (!newJob || !newJob.dataValues.id) {
       throw new Error("Job creation failed or job does not exist in DB");
     }
-    await (newJob as any).addKeyword(newKeyword, { transaction });
+    // await (newJob as any).addKeyword(newKeyword, { transaction });
+    await addKeywordToJob(newJob.dataValues.id, newKeyword.dataValues.keyword, transaction);
     await transaction.commit();
     return { newJob, createdJob };
   } catch (error) {
@@ -378,7 +380,11 @@ export const filterByJobTitle = async (jobs: Job[]): Promise<string> => {
 };
 
 // Add keyword to job instance getting job with job id
-export const addKeywordToJob = async (jobId: string, keyword: string): Promise<Job | null> => {
+export const addKeywordToJob = async (
+  jobId: string,
+  keyword: string,
+  transaction: Transaction
+): Promise<Job | null> => {
   const job = await Job.findByPk(jobId);
   const [newKeyword] = await Keyword.findOrCreate({
     where: {
@@ -387,6 +393,7 @@ export const addKeywordToJob = async (jobId: string, keyword: string): Promise<J
     defaults: {
       keyword,
     },
+    transaction,
   });
   await jobKeywordService.createJobKeyword(jobId, newKeyword.dataValues.id);
   return job;
