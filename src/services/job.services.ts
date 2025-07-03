@@ -395,6 +395,10 @@ export const addKeywordToJob = async (
     },
     transaction,
   });
-  await jobKeywordService.createJobKeyword(jobId, newKeyword.dataValues.id);
+  await jobKeywordService.createJobKeyword(
+    jobId,
+    newKeyword.dataValues.id,
+    transaction
+  );
   return job;
 };
