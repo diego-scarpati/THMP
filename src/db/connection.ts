@@ -18,6 +18,12 @@ const { DATABASE_URL } = process.env as Env;
 const db: Sequelize = new Sequelize(DATABASE_URL ?? "", {
   logging: false,
   native: false,
+  pool: {
+    max: 20, // 🚀 start with 20–30 if you're doing job scraping
+    min: 0,
+    acquire: 30000, // 30 sec wait before timeout
+    idle: 10000,
+  },
 });
 
 export default db;

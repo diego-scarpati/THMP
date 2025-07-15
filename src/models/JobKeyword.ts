@@ -15,10 +15,22 @@ JobKeyword.init(
     jobId: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: "jobs", // MUST match the actual table name
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
     keywordId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "keywords",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
   },
   {
@@ -26,3 +38,27 @@ JobKeyword.init(
     sequelize: db,
   }
 );
+
+// JobKeyword.init(
+//   {
+//     id: {
+//       autoIncrement: true,
+//       allowNull: false,
+//       unique: true,
+//       primaryKey: true,
+//       type: DataTypes.INTEGER,
+//     },
+//     jobId: {
+//       type: DataTypes.STRING,
+//       allowNull: false,
+//     },
+//     keywordId: {
+//       type: DataTypes.INTEGER,
+//       allowNull: false,
+//     },
+//   },
+//   {
+//     tableName: "jobKeywords",
+//     sequelize: db,
+//   }
+// );

@@ -12,7 +12,8 @@ import {
 import { approveByAssistantGPT } from "../utils/assistants.js";
 import shouldAcceptJob from "../utils/approveByFormula.js";
 import db from "../db/connection.js";
-import * as jobKeywordService from "./jobKeyword.services.js";
+import * as jobKeywordServices from "./jobKeyword.services.js";
+import * as keywordServices from "./keyword.services.js";
 
 export const getAllJobs = async (
   whereClause: any
@@ -42,6 +43,7 @@ export const getAllJobs = async (
   }
 };
 
+// export const getJobById = async (id: string, transaction: Transaction): Promise<Job | null> => {
 export const getJobById = async (id: string): Promise<Job | null> => {
   try {
     const job = await Job.findByPk(id);
@@ -140,31 +142,67 @@ export const getAllRejected = async (): Promise<Job[]> => {
   }
 };
 
+// export const createJob = async (
+//   job: any,
+//   approvedByFormula: string,
+//   keyword: string,
+//   postedBy: string,
+//   // transaction: Transaction
+// ): Promise<{ newJob: Job; createdJob: boolean } | undefined> => {
+//   // console.log("🚀 ~ keyword:", keyword);
+//   // console.log("🚀 ~ approvedByFormula:", approvedByFormula);
+//   // console.log("🚀 ~ job:", job);
+//   const transaction = await db.transaction();
+//   try {
+//     const newKeyword = await keywordServices.findOrCreateKeyword(keyword);
+//     console.log("🚀 ~ newKeyword:", newKeyword);
+//     const [newJob, createdJob] = await Job.findOrCreate({
+//       where: { id: job.id },
+//       defaults: {
+//         id: Number(job.id),
+//         title: job.title,
+//         url: job.url,
+//         referenceId: job.referenceId || null,
+//         posterId: job.posterId || null,
+//         company: job.company.name,
+//         location: job.location || null,
+//         type: job.type || null,
+//         postDate: job.postAt || null,
+//         benefits: job.benefits || null,
+//         approvedByFormula: approvedByFormula || "pending",
+//         postedBy: postedBy || "LinkedIn",
+//       },
+//       transaction,
+//     });
+//     console.log("🚀 ~ createdJob:", createdJob);
+//     console.log("🚀 ~ newJob:", newJob);
+//     if (!newJob || !newJob.dataValues.id || !newKeyword) {
+//       throw new Error("Job creation failed or job does not exist in DB");
+//     }
+//     // await (newJob as any).addKeyword(newKeyword, { transaction });
+//     await transaction.commit();
+//     await addKeywordToJob(newJob.dataValues.id, newKeyword.dataValues.keyword, transaction);
+//     return { newJob, createdJob };
+//   } catch (error) {
+//     await transaction.rollback();
+//     console.log("🚀 ~ createJob ~ error:", error);
+//     throw error;
+//   }
+// //   finally {
+// //   if (!transaction.finished) await transaction.rollback(); // safety
+// // }
+// };
 export const createJob = async (
   job: any,
   approvedByFormula: string,
-  keyword: string,
+  keywordId: number,
   postedBy: string
 ): Promise<{ newJob: Job; createdJob: boolean } | undefined> => {
   const transaction = await db.transaction();
-  console.log("🚀 ~ keyword:", keyword);
-  console.log("🚀 ~ approvedByFormula:", approvedByFormula);
-  console.log("🚀 ~ job:", job);
   try {
-    const [newKeyword] = await Keyword.findOrCreate({
-      where: {
-        keyword,
-      },
-      defaults: {
-        keyword,
-      },
-      transaction,
-    });
-    console.log("🚀 ~ newKeyword:", newKeyword);
-    const [newJob, createdJob] = await Job.findOrCreate({
-      where: { id: job.id },
-      defaults: {
-        id: Number(job.id),
+    const newJob = await Job.create(
+      {
+        id: job.id,
         title: job.title,
         url: job.url,
         referenceId: job.referenceId || null,
@@ -177,20 +215,24 @@ export const createJob = async (
         approvedByFormula: approvedByFormula || "pending",
         postedBy: postedBy || "LinkedIn",
       },
-      transaction,
-    });
-    console.log("🚀 ~ createdJob:", createdJob);
-    console.log("🚀 ~ newJob:", newJob);
+      { transaction }
+    );
+
     if (!newJob || !newJob.dataValues.id) {
-      throw new Error("Job creation failed or job does not exist in DB");
+      throw new Error("Job creation failed or keyword not created.");
     }
-    // await (newJob as any).addKeyword(newKeyword, { transaction });
-    await addKeywordToJob(newJob.dataValues.id, newKeyword.dataValues.keyword, transaction);
+
+    // Add job-keyword inside the SAME transaction (before commit)
+    // await addKeywordToJob(String(newJob.dataValues.id), keywordId, transaction);
+
+    // Commit ONLY AFTER everything succeeded
     await transaction.commit();
-    return { newJob, createdJob };
+    return { newJob, createdJob: true };
   } catch (error) {
+    // if (!transaction.finished)
     await transaction.rollback();
     console.log("🚀 ~ createJob ~ error:", error);
+    throw error;
   }
 };
 
@@ -380,25 +422,18 @@ export const filterByJobTitle = async (jobs: Job[]): Promise<string> => {
 };
 
 // Add keyword to job instance getting job with job id
-export const addKeywordToJob = async (
-  jobId: string,
-  keyword: string,
-  transaction: Transaction
-): Promise<Job | null> => {
-  const job = await Job.findByPk(jobId);
-  const [newKeyword] = await Keyword.findOrCreate({
-    where: {
-      keyword,
-    },
-    defaults: {
-      keyword,
-    },
-    transaction,
-  });
-  await jobKeywordService.createJobKeyword(
-    jobId,
-    newKeyword.dataValues.id,
-    transaction
-  );
-  return job;
-};
+// export const addKeywordToJob = async (
+//   jobId: string,
+//   keywordId: number,
+//   transaction: Transaction
+// ): Promise<Job | null> => {
+//   const job = await Job.findByPk(jobId, {
+//     transaction,
+//   });
+//   if (!job) {
+//     console.log("🚀 ~ addKeywordToJob ~ job not found:", jobId);
+//     throw new Error(`Job with id ${jobId} not found during keyword addition.`);
+//   }
+//   await jobKeywordServices.createJobKeyword(`${jobId}`, keywordId, transaction);
+//   return job;
+// };

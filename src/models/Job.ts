@@ -3,7 +3,6 @@ import db from "../db/connection.js";
 
 export default class Job extends Model {}
 
-// const Job = db.define("Job", {
 Job.init(
   {
     id: {

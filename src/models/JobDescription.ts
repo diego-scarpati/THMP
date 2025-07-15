@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
 import db from "../db/connection.js";
-import Job from "./Job";
+import Job from "./Job.js";
 
 export default class JobDescription extends Model {}
 

@@ -1,6 +1,7 @@
 import * as jobServices from "../services/job.services.js";
 import * as jobDescriptionServices from "../services/jobDescription.services.js";
 import * as keywordServices from "../services/keyword.services.js";
+import * as jobKeywordServices from "../services/jobKeyword.services.js";
 import * as linkedInApi from "../linkedin_api/index.js";
 import { saveToFile } from "../utils/pythonFunctions.js";
 import { Job, JobDescription, Keyword } from "../models/index.js";
@@ -8,6 +9,7 @@ import fetchJob from "../utils/fetchingJob.js";
 import shouldAcceptJob from "../utils/approveByFormula.js";
 import { JobAttributes, JobDescriptionAttributes, LinkedInJob } from "../utils/types.js";
 import db from "../db/connection.js";
+import pLimit from "p-limit";
 
 const modelOptions = [
   // Model parameters
@@ -174,6 +176,7 @@ export const saveJobsToFile = async (req, res) => {
 
 export const getJobById = async (req, res) => {
   const { id } = req.params;
+  const transaction = await db.transaction();
   try {
     const job = await jobServices.getJobById(id);
     return res.status(200).json(job);
@@ -235,7 +238,12 @@ export const getAllRejected = async (req, res) => {
 export const searchAndCreateJobs = async (req, res) => {
   const { keywords, locationId, datePosted, sort } = req.query;
   let postedBy = "LinkedIn";
+  // const limit = pLimit(5);
   try {
+    const [newKeyword] = await keywordServices.findOrCreateKeyword(keywords);
+    if (!newKeyword) {
+      throw new Error("Keyword not found or created");
+    }
     const jobs = await linkedInApi.filterJobs({
       keywords,
       locationId,
@@ -250,12 +258,18 @@ export const searchAndCreateJobs = async (req, res) => {
     let jobsCreated = 0;
     let jobsThatAlreadyExist = 0;
     let jobDescriptionsCreated = 0;
+    let jobFailedToCreate = 0;
+    const createdJobsIds = new Set();
 
     for (const job of jobs.data as LinkedInJob[]) {
-      console.log("🚀 ~ searchAndCreateJobs ~ job:", job.id);
+      // const jobPromises = jobs.data.map((job) =>
+      //   limit(async () => {
+      // const transaction = await db.transaction();
       const existingJob = await jobServices.getJobById(job.id);
       if (existingJob) {
+        console.log("🚀 jobsThatAlreadyExist");
         jobsThatAlreadyExist++;
+        createdJobsIds.add(existingJob.dataValues.id);
         continue;
       }
       let approvedByFormula = "pending";
@@ -271,32 +285,73 @@ export const searchAndCreateJobs = async (req, res) => {
       } catch (error) {
         console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
       }
-      const returnedJob = await jobServices.createJob(job, approvedByFormula, keywords, postedBy);
-      console.log("🚀 ~ searchAndCreateJobs ~ returnedJob:", returnedJob);
-      returnedJob?.createdJob ? jobsCreated++ : jobsThatAlreadyExist++;
-      if (description !== "" && returnedJob?.createdJob) {
-        try {
-          const jobDescriptionData: JobDescriptionAttributes = {
-            id: job.id,
-            state: "LISTED",
-            description,
-          };
-          const returnedJobDescription =
-            await jobDescriptionServices.createJobDescription(jobDescriptionData);
-          if (returnedJobDescription) {
-            jobDescriptionsCreated++;
-          }
-        } catch (error) {
-          console.log("🚀 ~ searchAndCreateJobs ~ error:", error);
+      try {
+        const returnedJob = await jobServices.createJob(
+          job,
+          approvedByFormula,
+          newKeyword.dataValues.id, // keywordId
+          postedBy
+        );
+        if (!returnedJob) {
+          jobFailedToCreate++;
+          console.warn("🚀 ~ searchAndCreateJobs ~ jobFailedToCreate:", `${job.id} - ${job.title}`);
+          continue;
         }
+        // const jobKeyword = await jobKeywordServices.createJobKeyword(
+        //   String(returnedJob.newJob.dataValues.id),
+        //   newKeyword.dataValues.id
+        // );
+        // if (!jobKeyword) {
+        //   console.warn("🚀 ~ searchAndCreateJobs ~ jobKeyword not created:", job.id);
+        // }
+        returnedJob?.createdJob
+          ? jobsCreated++ && createdJobsIds.add(returnedJob.newJob.dataValues.id)
+          : jobsThatAlreadyExist++;
+
+        if (description !== "" && returnedJob?.createdJob) {
+          try {
+            const jobDescriptionData: JobDescriptionAttributes = {
+              id: job.id,
+              state: "LISTED",
+              description,
+            };
+            const returnedJobDescription =
+              await jobDescriptionServices.createJobDescription(jobDescriptionData);
+            if (returnedJobDescription) {
+              jobDescriptionsCreated++;
+            }
+          } catch (error) {
+            console.log("🚀 ~ searchAndCreateJobs ~ error:", error);
+          }
+        }
+      } catch (error) {
+        console.error("🚀 Job creation failed:", error);
       }
     }
+    for (const jobId of createdJobsIds) {
+      try {
+        await jobKeywordServices.createJobKeyword(String(jobId), newKeyword.dataValues.id);
+      } catch (error) {
+        console.error(
+          "🚀 ~ searchAndCreateJobs ~ jobKeywordServices.createJobKeyword error:",
+          error
+        );
+      }
+    }
+    // )
+    // );
+    // await Promise.all(jobPromises);
+
     console.log("🚀 ~ searchAndCreateJobs ~ jobsCreated:", jobsCreated);
     console.log("🚀 ~ searchAndCreateJobs ~ jobDescriptionsCreated:", jobDescriptionsCreated);
     console.log("🚀 ~ searchAndCreateJobs ~ jobsThatAlreadyExist:", jobsThatAlreadyExist);
+
     return res.status(201).send(
       `
-        Created ${jobsCreated} jobs out of ${jobs.filteredJobs} that were filtered out of ${jobs.total} jobs in total. ${jobsThatAlreadyExist} jobs already existed in DB. Job descriptions created: ${jobDescriptionsCreated}. 
+    Created ${jobsCreated} jobs out of ${jobs.filteredJobs} that were filtered out of ${jobs.total} total.
+    ${jobsThatAlreadyExist} already existed. 
+    ${jobFailedToCreate} failed to create.
+    Job descriptions created: ${jobDescriptionsCreated}.
       `
     );
   } catch (error) {
@@ -468,11 +523,11 @@ export const searchAndCreateWithAllKeywords = async (req, res) => {
       // Loop through each job and create it
       for (const job of jobs.data as LinkedInJob[]) {
         // Check if job has already been looped in other keyword
+        const transaction = await db.transaction();
         if (idSet.has(job.id)) {
           jobsLoopedInOtherKeywords++;
-          const transaction = await db.transaction();
           // Shoudl add the keyword to the job
-          jobServices.addKeywordToJob(job.id, keyword.dataValues.keyword, transaction);
+          jobKeywordServices.createJobKeyword(job.id, keyword.dataValues.keyword, transaction);
           continue;
         }
 
