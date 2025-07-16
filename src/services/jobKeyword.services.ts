@@ -7,10 +7,11 @@ export const createJobKeyword = async (
   transaction?: Transaction
 ) => {
   try {
-    const jobKeyword = await JobKeyword.create(
-      { jobId, keywordId },
-      { transaction }
-    );
+    const jobKeyword = await JobKeyword.findOrCreate({
+      where: { jobId, keywordId },
+      defaults: { jobId, keywordId },
+      transaction,
+    });
     return jobKeyword;
   } catch (error) {
     console.error("Error creating JobKeyword:", error);
