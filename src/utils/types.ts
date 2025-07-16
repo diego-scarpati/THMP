@@ -64,3 +64,11 @@ export interface IUser {
 export interface IUserAttributes extends IUser {
   id: number;
 }
+
+export interface IJobResult {
+  created?: boolean;
+  existed?: boolean;
+  descriptionCreated?: boolean;
+  failed?: boolean;
+  id: string;
+}

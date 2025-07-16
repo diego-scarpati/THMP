@@ -7,7 +7,7 @@ import { saveToFile } from "../utils/pythonFunctions.js";
 import { Job, JobDescription, Keyword } from "../models/index.js";
 import fetchJob from "../utils/fetchingJob.js";
 import shouldAcceptJob from "../utils/approveByFormula.js";
-import { JobDescriptionAttributes, LinkedInJob } from "../utils/types.js";
+import { IJobResult, JobDescriptionAttributes, LinkedInJob } from "../utils/types.js";
 import db from "../db/connection.js";
 import pLimit from "p-limit";
 
@@ -262,7 +262,7 @@ export const searchAndCreateJobs = async (req, res) => {
     const createdJobsIds = new Set();
 
     // for (const job of jobs.data as LinkedInJob[]) {
-    const jobPromises = jobs.data.map((job) =>
+    const jobPromises: Promise<IJobResult>[] = jobs.data.map((job) =>
       limit(async () => {
         // const transaction = await db.transaction();
         const existingJob = await jobServices.getJobById(job.id);
@@ -272,7 +272,10 @@ export const searchAndCreateJobs = async (req, res) => {
           createdJobsIds.add(existingJob.dataValues.id);
           // continue;
           return {
+            created: false,
             existed: true,
+            descriptionCreated: false,
+            failed: false,
             id: existingJob.dataValues.id,
           };
         }
@@ -285,9 +288,24 @@ export const searchAndCreateJobs = async (req, res) => {
             console.log("🚀 ~ Description exists");
             approvedByFormula = (await shouldAcceptJob({ description }, 4)) ? "yes" : "no";
             console.log("🚀 ~ searchAndCreateJobs ~ approvedByFormula:", approvedByFormula);
+          } else {
+            return {
+              created: true,
+              descriptionCreated: false,
+              failed: false,
+              existed: false,
+              id: job.id,
+            };
           }
         } catch (error) {
           console.log("🚀 ~ searchAndCreateWithAllKeywords ~ error:", error);
+          return {
+            created: false,
+            descriptionCreated: false,
+            failed: true,
+            existed: false,
+            id: job.id,
+          };
         }
         try {
           const returnedJob = await jobServices.createJob(
@@ -302,19 +320,24 @@ export const searchAndCreateJobs = async (req, res) => {
               "🚀 ~ searchAndCreateJobs ~ jobFailedToCreate:",
               `${job.id} - ${job.title}`
             );
-            // If the job creation failed, we can log it and continue to the next job
-            // "continue" for a for loop, return for a map function
-            // continue;
             return {
               failed: true,
+              created: false,
+              existed: false,
+              descriptionCreated: false,
               id: job.id,
             };
           }
-          // returnedJob?.createdJob
-          //   ? jobsCreated++ && createdJobsIds.add(returnedJob.newJob.dataValues.id)
-          //   : jobsThatAlreadyExist++;
           if (returnedJob?.createdJob) createdJobsIds.add(returnedJob.newJob.dataValues.id);
-
+          if (description === "") {
+            return {
+              created: true,
+              descriptionCreated: false,
+              failed: false,
+              existed: false,
+              id: job.id,
+            };
+          }
           if (description !== "" && returnedJob?.createdJob) {
             try {
               const jobDescriptionData: JobDescriptionAttributes = {
@@ -325,10 +348,11 @@ export const searchAndCreateJobs = async (req, res) => {
               const returnedJobDescription =
                 await jobDescriptionServices.createJobDescription(jobDescriptionData);
               if (returnedJobDescription) {
-                // jobDescriptionsCreated++;
                 return {
                   created: true,
                   descriptionCreated: true,
+                  failed: false,
+                  existed: false,
                   id: returnedJob.newJob.dataValues.id,
                 };
               } else {
@@ -336,14 +360,41 @@ export const searchAndCreateJobs = async (req, res) => {
                   "🚀 ~ searchAndCreateJobs ~ jobDescriptionServices.createJobDescription failed:",
                   `${job.id} - ${job.title}`
                 );
-                return { created: true, descriptionCreated: false, id: job.id };
+                return {
+                  created: true,
+                  descriptionCreated: false,
+                  failed: false,
+                  existed: false,
+                  id: job.id,
+                };
               }
             } catch (error) {
               console.log("🚀 ~ searchAndCreateJobs ~ error:", error);
+              return {
+                created: true,
+                descriptionCreated: false,
+                failed: false,
+                existed: false,
+                id: job.id,
+              };
             }
           }
+          return {
+            created: returnedJob?.createdJob || false,
+            descriptionCreated: false,
+            failed: !returnedJob?.createdJob,
+            existed: false,
+            id: job.id,
+          };
         } catch (error) {
           console.error("🚀 Job creation failed:", error);
+          return {
+            created: false,
+            descriptionCreated: false,
+            failed: true,
+            existed: false,
+            id: job.id,
+          };
         }
       })
     );
@@ -365,10 +416,6 @@ export const searchAndCreateJobs = async (req, res) => {
         );
       }
     }
-
-    console.log("🚀 ~ searchAndCreateJobs ~ jobsCreated:", jobsCreated);
-    console.log("🚀 ~ searchAndCreateJobs ~ jobDescriptionsCreated:", jobDescriptionsCreated);
-    console.log("🚀 ~ searchAndCreateJobs ~ jobsThatAlreadyExist:", jobsThatAlreadyExist);
 
     return res.status(201).send(
       `
